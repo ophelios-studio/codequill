@@ -1,0 +1,66 @@
+application:
+  debug: !env DEBUG
+  project: "Boilerplate"
+  contact_email: "info@ophelios.com"
+  version: "0.0.0"
+  locales:
+    - en_CA
+
+locale:
+  currency: "CAD"
+  timezone: "America/Montreal"
+  charset: "utf8"
+  locale: "en_CA"
+
+mailer:
+  transport: "smtp"
+  default_from_address: "info@ophelios.com"
+  default_from_name: "Zephyrus"
+  smtp:
+    enabled: true
+    host: "localhost"
+    port: 1025
+    encryption: "none"
+    username: ""
+    password: ""
+
+database:
+  hostname: !env DB_HOSTNAME
+  username: !env DB_USERNAME
+  password: !env DB_PASSWORD
+  database: !env DB_NAME
+  search_paths:
+    - public
+
+render:
+  engine: "latte"
+  cache_update: !env CACHE_UPDATE
+
+session:
+  storage: "database"
+  table: "public.session"
+  encrypted: false
+  lifetime: 1440
+  auto_start: true
+
+services:
+  aws:
+    region: 'ca-central-1'
+    version: 'latest'
+    api_key: !env AWS_KEY
+    api_secret: !env AWS_SECRET
+
+security:
+  pwned:
+    enabled: true
+    tolerance: 1
+  password:
+    pepper: !env PASSWORD_PEPPER
+  encryption:
+    key: !env ENCRYPTION_KEY
+  csrf:
+    enabled: true
+  ids:
+    enabled: true
+    impact_threshold: 50
+

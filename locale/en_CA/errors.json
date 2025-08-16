@@ -1,0 +1,6 @@
+{
+  "errors": {
+    "unauthorized": "You are not authorized to access the requested resource. For further information, please contact an administrator.",
+    "csrf_invalid": "The request could not be processed because a security token is invalid (possibly expired). Please try again, and if the problem persists, contact an administrator."
+  }
+}

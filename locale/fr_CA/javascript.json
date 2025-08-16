@@ -1,0 +1,11 @@
+{
+  "js": {
+    "buttons": {
+      "loading": "Chargement ..."
+    },
+    "tomselect": {
+      "create": "<div class='create'>Ajouter <strong>%s</strong>&hellip;</div>",
+      "no_results": "<div class='no-results'>Aucun résultat trouvé</div>"
+    }
+  }
+}

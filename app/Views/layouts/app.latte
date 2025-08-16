@@ -1,0 +1,45 @@
+{import ../pulsar/components/flash.latte}
+{import ../pulsar/components/undraw.latte}
+{import ../pulsar/components/alert.latte}
+{import ../pulsar/components/avatar.latte}
+{import ../pulsar/components/modal.latte}
+{import ../pulsar/components/offcanvas.latte}
+{import ../pulsar/components/peity.latte}
+{import ../pulsar/components/toggle.latte}
+{import ../pulsar/components/button.latte}
+
+{import ../pulsar/forms/field.latte}
+{import ../pulsar/forms/text.latte}
+{import ../pulsar/forms/password.latte}
+{import ../pulsar/forms/checkbox.latte}
+{import ../pulsar/forms/pincode.latte}
+{import ../pulsar/forms/icon-picker.latte}
+{import ../pulsar/forms/textarea.latte}
+
+<!doctype html>
+<!--
+* Tabler - Premium and Open Source dashboard template with responsive and high quality UI.
+* @version 1.4.0
+* @link https://tabler.io
+* Copyright 2018-2025 The Tabler Authors
+* Copyright 2018-2025 codecalm.net Paweł Kuna
+* Licensed under MIT (https://github.com/tabler/tabler/blob/master/LICENSE)
+-->
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    {include components/favicon.latte}
+    {block meta}{/block}
+    <title>Boilerplate</title>
+    {include components/stylesheets.latte}
+    {include components/javascripts.latte}
+    {block css}{/block}
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.4.0/dist/js/tabler.min.js"></script>
+    {block content}{/block}
+    {block modals}{/block}
+</body>
+</html>

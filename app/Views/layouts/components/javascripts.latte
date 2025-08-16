@@ -1,0 +1,11 @@
+{varType \stdClass $i18n_javascript}
+
+<script src="/javascripts/pulsar/vendor/tom-select-2.2.2/tom-select.complete.min.js"></script>
+<script src="/javascripts/pulsar/vendor/peity-vanilla-0.0.8/peity-vanilla.min.js"></script>
+<script type="module" nonce="{nonce()}">
+    import Application from "/javascripts/app.js";
+    window.app = new Application({
+        i18n: {$i18n_javascript|noescape}
+    });
+    window.app.initialize();
+</script>

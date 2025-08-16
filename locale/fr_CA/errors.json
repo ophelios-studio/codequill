@@ -1,0 +1,6 @@
+{
+  "errors": {
+    "unauthorized": "Vous n'êtes pas autorisé à accéder à la ressource demandée. Pour plus d'informations, veuillez contacter un administrateur.",
+    "csrf_invalid": "La requête n'a pas pu être traitée car un jeton de sécurité est invalide (possiblement expiré). Veuillez réessayer, et si le problème persiste, contactez un administrateur."
+  }
+}

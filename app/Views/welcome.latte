@@ -1,0 +1,15 @@
+{layout layouts/app.latte}
+
+{block content}
+    <div class="page page-center">
+        <div class="container-tight py-4">
+            <div class="empty">
+                <div class="empty-img">
+                    {include "zf-undraw", "cooking"}
+                </div>
+                <p class="empty-title">{localize("welcome.title")|noescape}</p>
+                <p class="empty-subtitle text-secondary">{localize("welcome.subtitle")|noescape}</p>
+            </div>
+        </div>
+    </div>
+{/block}
