@@ -34,25 +34,35 @@ RUN apt-get update && apt-get install -y libssh2-1-dev && \
 # Enable Apache modules
 RUN a2enmod rewrite headers expires
 
+RUN chown -R www-data:www-data /var/www/
+
+USER www-data
+WORKDIR /var/www/html
+
+RUN mkdir -p /var/www/.composer
+RUN git config --global --add safe.directory /var/www/html
+
 # Custom PHP config
 #COPY custom.ini /usr/local/etc/php/conf.d/base-custom.ini
 
 # Copy only composer files first to leverage Docker cache
 #COPY composer.json composer.lock /var/www/html/
-COPY composer.json /var/www/html/
+COPY --chown=www-data:www-data composer.json /var/www/html/
 
 # Apache vhost for Fly (port 80 only, no SSL block)
-COPY _deploy/vhosts/default.conf /etc/apache2/sites-available/000-default.conf
+COPY --chown=www-data:www-data _deploy/vhosts/default.conf /etc/apache2/sites-available/000-default.conf
 
 # Copy app code
-COPY . /var/www/html
+COPY --chown=www-data:www-data . /var/www/html
 
 # Install composer dependencies
+ENV COMPOSER_ALLOW_SUPERUSER=1
+ENV COMPOSER_GITHUB_PROTOCOLS=https
+
 RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --working-dir=/var/www/html
 
-RUN chown -R www-data:www-data /var/www/html
+#RUN chown -R www-data:www-data /var/www/html
 RUN chmod +x _deploy/scripts/init-db.sh
-#USER www-data
 
 # Apache must be PID 1
 EXPOSE 80
