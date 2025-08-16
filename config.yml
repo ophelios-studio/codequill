@@ -44,6 +44,10 @@ session:
   auto_start: true
 
 services:
+  mint:
+    private_key: !env NFT_MINT_PRIVATE
+    contract_address: !env NFT_MINT_ADDRESS
+
   infura:
     eth_url: !env INFURA_ETH_URL
     polygon_url: !env INFURA_POLYGON_URL
