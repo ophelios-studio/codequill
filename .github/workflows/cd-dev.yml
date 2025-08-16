@@ -1,0 +1,23 @@
+name: Deploy to Development 🚀
+
+on:
+  push:
+    branches:
+      - dev
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'development'
+        type: choice
+        options:
+          - development
+
+jobs:
+  deploy-dev:
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: 'development'
+      config_file: 'fly_dev.toml'
+    secrets: inherit
