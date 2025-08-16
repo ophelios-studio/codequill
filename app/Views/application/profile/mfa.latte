@@ -1,0 +1,137 @@
+{layout ../../layouts/main.latte}
+
+{varType Pulsar\Account\Entities\User $user}
+{varType ?string $otp_image_url}
+{varType ?string $otp_secret}
+
+{block content}
+    <!-- BEGIN PAGE HEADER -->
+    <div class="page-header d-print-none" aria-label="Page header">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <h2 class="page-title">Account Settings</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END PAGE HEADER -->
+    <!-- BEGIN PAGE BODY -->
+    <div class="page-body">
+        <div class="container-xl">
+            <form class="card" action="/app/profile/mfa-preferred" method="post">
+                <div class="row g-0">
+                    {include components/navigation.latte}
+                    <div class="col-12 col-md-9 d-flex flex-column">
+                        <div class="card-body">
+                            <h2 class="mb-4">2FA Authentication</h2>
+                            {include "zf-flash"}
+                            <p>This procedure adds an extra layer of security 🔐 during authentication by requiring at least one one-time code obtained from a method accessible only by you.</p>
+                            <h3>Preferred method</h3>
+                            <p>This method will be used by default when 2FA is configured.</p>
+                            {var array $options = []}
+                            {if $user->authentication->mfa_methods}
+                                {foreach $user->authentication->mfa_methods as $method}
+                                    {var string $label = "Email"}
+                                    {if $method->type == "otp"}
+                                        {do $label = "Authenticator App"}
+                                    {/if}
+                                    {do $options[$method->id] = $label}
+                                {/foreach}
+                            {/if}
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {include "zf-field-select", "Preferred 2FA", "mfa", $options, [
+                                        native: true,
+                                        placeholder: "Choose a method",
+                                        default: $user->authentication->primary_mfa?->id
+                                    ]}
+                                </div>
+                            </div>
+
+                            <h3>Method configurations</h3>
+                            <p class="card-subtitle">Manage desired 2FA methods.</p>
+                            <div>
+                                {if $user->authentication->getMfa('otp')}
+                                    {include "zf-button-modal", "Disable Authenticator app", "modal-disable-otp", [
+                                        icon: "phone"
+                                    ]}
+                                {else}
+                                    {include "zf-button-modal", "Enable Authenticator app", "modal-enable-otp", [
+                                        icon: "phone"
+                                    ]}
+                                {/if}
+                                {if $user->authentication->getMfa('email')}
+                                    {include "zf-button-modal", "Disable email", "modal-disable-email", [
+                                        icon: "envelope"
+                                    ]}
+                                {else}
+                                    {include "zf-button-modal", "Enable email", "modal-enable-email", [
+                                        icon: "envelope"
+                                    ]}
+                                {/if}
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent mt-auto">
+                            <div class="btn-list justify-content-end">
+                                <a href="/app/profile" class="btn">Cancel</a>
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{/block}
+
+{block modals}
+    {if is_null($user->authentication->getMfa('otp'))}
+        {capture $modalOptLayout}
+            <div class="text-center mt-4">
+                <p>Authenticator apps and browser extensions like 1Password, Authy, Microsoft Authenticator, etc. generate one-time passwords that are used as a second factor to verify your identity when prompted during sign-in.</p>
+                <img class="my-3" src="{$otp_image_url|nocheck}" alt="" />
+                <p>Unable to scan? You can use the setup key <code>{$otp_secret}</code> to manually configure your authenticator app.</p>
+                <hr />
+                <form action="/app/security/mfa/otp/enable" method="post">
+                    {include "zf-input-pincode", "code[]"}
+                    {include "zf-button-submit", localize("buttons.enable")}
+                </form>
+            </div>
+        {/capture}
+        {include "zf-modal-info", "modal-enable-otp", [layout: $modalOptLayout, illustration: 'security_on', illustration-theme: 'danger']}
+    {else}
+        {capture $modalDisableLayout}
+            <div class="text-center mt-4">
+                <p>Do you really want to <b class='text-danger'>disable the authentication factor</b> currently configured for the Authenticator app?</p>
+                <form action="/app/profile/mfa/otp/disable" method="post">
+                    {include "zf-button-submit", localize("buttons.disable")}
+                </form>
+            </div>
+        {/capture}
+        {include "zf-modal-info", "modal-disable-otp", [layout: $modalDisableLayout, illustration: 'security_on', illustration-theme: 'danger']}
+    {/if}
+
+    {if is_null($user->authentication->getMfa('email'))}
+        {capture $modalLayout}
+            <div class="text-center mt-4">
+                <p>Bla bla bla</p>
+                <form action="/app/profile/mfa/email/enable" method="post">
+                    {include "zf-button-submit", localize("buttons.enable")}
+                </form>
+            </div>
+        {/capture}
+        {include "zf-modal-info", "modal-enable-email", [layout: $modalLayout, illustration: 'security_on', illustration-theme: 'danger']}
+    {else}
+        {capture $modalDisableLayout}
+            <div class="text-center mt-4">
+                <p>Do you really want to <b class='text-danger'>disable the authentication factor</b> currently configured for the email address <b>{$user->email}</b>?</p>
+                <form action="/app/profile/mfa/email/disable" method="post">
+                    {include "zf-button-submit", localize("buttons.disable")}
+                </form>
+            </div>
+        {/capture}
+        {include "zf-modal-info", "modal-disable-email", [layout: $modalDisableLayout, illustration: 'security_on', illustration-theme: 'danger']}
+    {/if}
+{/block}
