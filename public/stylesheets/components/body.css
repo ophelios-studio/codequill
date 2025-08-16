@@ -1,3 +1,15 @@
+:root {
+    --tblr-icon-size: 1.1rem;
+}
+
+.bi::before, [class*=" bi-"]::before, [class^=bi-]::before {
+    vertical-align: 0;
+}
+
+.icon {
+    --tblr-icon-size: 1.1rem;
+}
+
 body {
     /*font-weight: 300;
     font-size: 1rem;
