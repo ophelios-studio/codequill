@@ -44,11 +44,11 @@ COPY composer.json /var/www/html/
 # Apache vhost for Fly (port 80 only, no SSL block)
 COPY _deploy/vhosts/default.conf /etc/apache2/sites-available/000-default.conf
 
-# Install composer dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --working-dir=/var/www/html
-
 # Copy app code
 COPY . /var/www/html
+
+# Install composer dependencies
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --working-dir=/var/www/html
 
 RUN chown -R www-data:www-data /var/www/html
 RUN chmod +x _deploy/scripts/init-db.sh
