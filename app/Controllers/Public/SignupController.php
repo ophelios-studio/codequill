@@ -1,6 +1,7 @@
 <?php namespace Controllers\Public;
 
 use Controllers\Controller;
+use Pulsar\Account\Services\AuthenticationService;
 use Pulsar\Account\Services\UserService;
 use Zephyrus\Application\Flash;
 use Zephyrus\Network\Response;
@@ -24,6 +25,19 @@ class SignupController extends Controller
             'fullname' => $user->fullname,
             'email' => MaskFormat::email($user->email)]
         ));
+        return $this->redirect("/login");
+    }
+
+    #[Get("/signup-activation/{code}")]
+    public function signupActivation(string $code): Response
+    {
+        $user = AuthenticationService::authenticateByActivationCode($code);
+        if (is_null($user)) {
+            Flash::error(localize("accounts.errors.activation_invalid"));
+            return $this->redirect("/login");
+        }
+        AuthenticationService::activate($user);
+        Flash::success(localize("accounts.success.activation", ['email' => $user->email]));
         return $this->redirect("/login");
     }
 }
