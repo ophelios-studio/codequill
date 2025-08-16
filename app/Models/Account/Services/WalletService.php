@@ -1,16 +1,25 @@
 <?php namespace Models\Account\Services;
 
 use Models\Account\Brokers\WalletBroker;
-use Pulsar\Account\Passport;
-use stdClass;
+use Models\Account\Entities\Wallet;
 
 class WalletService
 {
     private WalletBroker $walletBroker;
 
-    public function __construct(WalletBroker $walletBroker)
+    public function __construct()
     {
-        $this->walletBroker = $walletBroker;
+        $this->walletBroker = new WalletBroker();
+    }
+
+    public function read(int $walletId): ?Wallet
+    {
+        return Wallet::build($this->walletBroker->findWalletById($walletId));
+    }
+
+    public function readByAddress(string $address): ?Wallet
+    {
+        return Wallet::build($this->walletBroker->findWalletByAddress($address));
     }
 
     public function handleConnect(string $address, int $userId): void
@@ -25,11 +34,11 @@ class WalletService
 
     public function disconnect(string $address): void
     {
-        $this->walletBroker->disconnectWallet($address, Passport::getUserId());
+        $this->walletBroker->disconnectWallet($this->readByAddress($address));
     }
 
-    public function getConnectedWallet(int $userId): ?stdClass
+    public function getConnectedWallet(int $userId): ?Wallet
     {
-        return $this->walletBroker->getWalletByUserId($userId);
+        return Wallet::build($this->walletBroker->findWalletByUserId($userId));
     }
 }

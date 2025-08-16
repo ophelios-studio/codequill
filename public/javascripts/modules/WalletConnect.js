@@ -8,24 +8,12 @@ export default class WalletConnect {
         this.apiEndpoints = {
             connect: '/app/api/wallet/connect',
             disconnect: '/app/api/wallet/disconnect',
-            refresh: '/app/api/wallet/refresh-ens',
-            syncState: '/app/api/wallet/sync-state'
+            refresh: '/app/api/wallet/refresh-ens'
         };
 
         // DOM Elements
         this.connectButton = document.getElementById('connectWalletBtn');
-        this.walletInfo = document.getElementById('walletInfo');
-        this.accountText = document.getElementById('accountAddress');
-        this.networkText = document.getElementById('networkName');
-        this.balanceText = document.getElementById('accountBalance');
-        this.refreshButton = null;
-
-        // Optional ENS elements
-        this.avatarElement = document.getElementById('ensAvatar');
-        this.ensNameElement = document.getElementById('ensName');
-        this.twitterElement = document.getElementById('twitterLink');
-        this.githubElement = document.getElementById('githubLink');
-        this.urlElement = document.getElementById('urlLink');
+        this.refreshButton = document.getElementById('refreshWalletBtn');
 
         // Add polling interval (in milliseconds)
         this.pollInterval = 5000; // 5 seconds
@@ -133,6 +121,7 @@ export default class WalletConnect {
     setupEventListeners() {
         // Connect button click handler
         this.connectButton?.addEventListener('click', () => this.connectWallet());
+        this.refreshButton?.addEventListener('click', () => this.refreshENSData());
 
         // Setup MetaMask event listeners
         this.provider.on('accountsChanged', (accounts) => {
@@ -163,7 +152,6 @@ export default class WalletConnect {
                 }]
             });
 
-            // The rest stays the same but we don't need the array handling anymore
             const formData = new FormData();
             formData.append('address', accounts[0]);
 
@@ -173,124 +161,22 @@ export default class WalletConnect {
                 credentials: 'include'
             });
 
-            const rawData = await response.text();
-            console.log('=== START OF RAW RESPONSE ===');
-            console.log(rawData);
-            console.log('=== END OF RAW RESPONSE ===');
+            const jsonData = await response.json();
 
-            let jsonData;
-            try {
-                jsonData = JSON.parse(rawData);
-                this.handleAccountsChanged([accounts[0]]);
-            } catch (parseError) {
-                console.error('=== PARSE ERROR ===');
-                console.error('Error type:', parseError.name);
-                console.error('Error message:', parseError.message);
-                throw new Error('Failed to parse server response');
+            if (!response.ok) {
+                throw new Error(jsonData.error || 'Failed to connect wallet');
             }
+
+            // Store address in localStorage before reload
+            localStorage.setItem('lastConnectedWalletAddress', accounts[0]);
+
+            // Reload the page to get fresh UI from backend
+            window.location.reload();
+
         } catch (error) {
             console.error('Error connecting wallet:', error);
             alert('Failed to connect wallet: ' + error.message);
         }
-    }
-
-    // async connectWallet() {
-    //     try {
-    //         const accounts = await this.provider.request({ method: 'eth_requestAccounts' });
-    //         this.handleAccountsChanged(accounts);
-    //     } catch (error) {
-    //         console.error('Error connecting wallet:', error);
-    //         alert('Failed to connect wallet: ' + error.message);
-    //     }
-    // }
-
-    async handleAccountsChanged(accounts) {
-        console.group('handleAccountsChanged');
-        console.log('Called with accounts:', accounts);
-
-        if (accounts.length === 0) {
-            console.log('No accounts found, handling disconnect');
-            await this.handleMetaMaskDisconnect();
-            console.groupEnd();
-            return;
-        }
-
-        try {
-            console.log('Account found:', accounts[0]);
-            this.account = accounts[0];
-            this.isConnected = true;
-
-            localStorage.setItem('lastConnectedWalletAddress', this.account);
-            console.log('Saved address to localStorage');
-
-            await this.updateWalletInfo();
-            console.log('Wallet info updated');
-
-            // Backend connection
-            console.group('Backend Connection');
-            console.log('Preparing request for address:', this.account);
-
-            const formData = new FormData();
-            formData.append('address', this.account);
-
-            console.log('Request details:', {
-                url: this.apiEndpoints.connect,
-                method: 'POST',
-                formData: Object.fromEntries(formData.entries())
-            });
-
-            const response = await fetch(this.apiEndpoints.connect, {
-                method: 'POST',
-                body: formData,
-                credentials: 'include'
-            });
-
-            console.log('Response details:', {
-                status: response.status,
-                statusText: response.statusText,
-                headers: Object.fromEntries(response.headers.entries()),
-                url: response.url
-            });
-
-            const rawData = await response.text();
-            console.log('=== START OF RAW RESPONSE ===');
-            console.log(rawData);
-            console.log('=== END OF RAW RESPONSE ===');
-
-            let jsonData;
-            try {
-                jsonData = JSON.parse(rawData);
-                console.log('Parsed JSON:', jsonData);
-            } catch (parseError) {
-                console.error('=== PARSE ERROR ===');
-                console.error('Error type:', parseError.name);
-                console.error('Error message:', parseError.message);
-                console.error('=== FULL RESPONSE THAT FAILED TO PARSE ===');
-                document.body.innerHTML += `<pre style="position:fixed;top:0;left:0;right:0;bottom:0;background:white;z-index:999999;overflow:auto;">${rawData}</pre>`;
-                throw new Error('Failed to parse server response - check console and page for full output');
-            }
-
-            if (!response.ok) {
-                console.error('=== ERROR RESPONSE ===');
-                console.error('Raw response:', rawData);
-                throw new Error('Server returned error status');
-            }
-
-            this.updateUIWithBackendData(jsonData);
-            console.log('UI updated with backend data');
-            console.groupEnd();
-            this.startConnectionPolling();
-
-            this.updateUI();
-            console.log('Main UI update complete');
-
-        } catch (error) {
-            console.error('=== FULL ERROR DETAILS ===');
-            console.error(error);
-            alert('Connection failed - Check console and page for full details');
-        }
-
-        console.groupEnd();
     }
 
     async checkForExternalDisconnection() {
@@ -329,108 +215,12 @@ export default class WalletConnect {
                 throw new Error('Failed to refresh ENS data');
             }
 
-            const data = await response.json();
-            this.updateUIWithBackendData(data);
+            // Reload page to show updated ENS data
+            window.location.reload();
+
         } catch (error) {
             console.error('Error refreshing ENS data:', error);
             alert('Failed to refresh ENS data: ' + error.message);
-        }
-    }
-
-    async updateWalletInfo() {
-        if (!this.isConnected) return;
-
-        try {
-            // Get network name
-            const chainId = await this.provider.request({ method: 'eth_chainId' });
-            const networkName = this.getNetworkName(chainId);
-
-            // Get balance
-            const balance = await this.provider.request({
-                method: 'eth_getBalance',
-                params: [this.account, 'latest']
-            });
-
-            const ethBalance = (parseInt(balance, 16) / 1e18).toFixed(4);
-
-            // Update UI elements
-            if (this.networkText) {
-                this.networkText.textContent = networkName;
-                this.balanceText.textContent = ethBalance;
-                this.accountText.textContent = this.formatAddress(this.account);
-            }
-        } catch (error) {
-            console.error('Error updating wallet info:', error);
-        }
-    }
-
-    updateUIWithBackendData(data) {
-        if (!data) return;
-
-        // Update ENS name if available
-        if (data.ens_name && this.ensNameElement) {
-            this.ensNameElement.textContent = data.ens_name;
-            this.accountText.textContent = data.ens_name;
-        }
-
-        // Update avatar if available
-        if (data.ens_avatar && this.avatarElement) {
-            this.avatarElement.src = data.ens_avatar;
-            this.avatarElement.style.display = 'block';
-        }
-
-        // Update ENS data if available
-        if (data.ens_data) {
-            const ensData = typeof data.ens_data === 'string'
-                ? JSON.parse(data.ens_data)
-                : data.ens_data;
-
-            if (this.twitterElement && ensData.twitter) {
-                this.twitterElement.href = `https://twitter.com/${ensData.twitter}`;
-                this.twitterElement.textContent = `@${ensData.twitter}`;
-                this.twitterElement.style.display = 'block';
-            }
-
-            if (this.githubElement && ensData.github) {
-                this.githubElement.href = `https://github.com/${ensData.github}`;
-                this.githubElement.textContent = ensData.github;
-                this.githubElement.style.display = 'block';
-            }
-
-            if (this.urlElement && ensData.url) {
-                this.urlElement.href = ensData.url;
-                this.urlElement.textContent = ensData.url;
-                this.urlElement.style.display = 'block';
-            }
-        }
-    }
-
-    updateUI() {
-        if (!this.connectButton) {
-            return;
-        }
-        if (this.isConnected) {
-            this.connectButton.textContent = 'Wallet Connected';
-            this.connectButton.disabled = true;
-            this.walletInfo.style.display = 'block';
-
-            // Add refresh button if not exists
-            if (!this.refreshButton) {
-                this.refreshButton = document.createElement('button');
-                this.refreshButton.textContent = 'Refresh ENS Data';
-                this.refreshButton.className = 'btn btn-secondary ms-2';
-                this.refreshButton.onclick = () => this.refreshENSData();
-                this.walletInfo.appendChild(this.refreshButton);
-            }
-        } else {
-            this.connectButton.textContent = 'Connect Wallet';
-            this.connectButton.disabled = false;
-            this.walletInfo.style.display = 'none';
-
-            if (this.refreshButton) {
-                this.refreshButton.remove();
-                this.refreshButton = null;
-            }
         }
     }
 
@@ -438,28 +228,47 @@ export default class WalletConnect {
         try {
             const accounts = await this.provider.request({ method: 'eth_accounts' });
             if (accounts.length > 0) {
-                this.handleAccountsChanged(accounts);
+                // Just update the account state without reloading
+                this.account = accounts[0];
+                this.isConnected = true;
+                localStorage.setItem('lastConnectedWalletAddress', this.account);
             }
         } catch (error) {
             console.error('Error checking connection:', error);
         }
     }
 
-    getNetworkName(chainId) {
-        const networks = {
-            '0x1': 'Ethereum Mainnet',
-            '0x3': 'Ropsten Testnet',
-            '0x4': 'Rinkeby Testnet',
-            '0x5': 'Goerli Testnet',
-            '0x2a': 'Kovan Testnet',
-            '0x89': 'Polygon Mainnet',
-            '0x13881': 'Mumbai Testnet',
-            '0xaa36a7': 'Sepolia Testnet'
-        };
-        return networks[chainId] || `Chain ID: ${chainId}`;
-    }
+    async handleAccountsChanged(accounts) {
+        if (accounts.length === 0) {
+            await this.handleMetaMaskDisconnect();
+            return;
+        }
 
-    formatAddress(address) {
-        return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
+        const currentAccount = accounts[0];
+        const storedAddress = localStorage.getItem('lastConnectedWalletAddress');
+
+        // Only update if the account actually changed from what's stored
+        if (!storedAddress || storedAddress.toLowerCase() !== currentAccount.toLowerCase()) {
+            try {
+                const formData = new FormData();
+                formData.append('address', currentAccount);
+
+                const response = await fetch(this.apiEndpoints.connect, {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    localStorage.setItem('lastConnectedWalletAddress', currentAccount);
+                    window.location.reload();
+                } else {
+                    throw new Error('Failed to update wallet connection');
+                }
+            } catch (error) {
+                console.error('Failed to handle account change:', error);
+                alert('Failed to update wallet connection: ' + error.message);
+            }
+        }
     }
 }

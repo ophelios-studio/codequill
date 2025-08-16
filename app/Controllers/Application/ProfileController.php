@@ -2,6 +2,7 @@
 
 use Models\Account\Brokers\WalletBroker;
 use Models\Account\Entities\Wallet;
+use Models\Account\Services\WalletService;
 use Pulsar\Account\MultiFactor;
 use Pulsar\Account\Passport;
 use Pulsar\Account\Services\UserService;
@@ -24,7 +25,10 @@ class ProfileController extends AppController
     #[Get("/wallet")]
     public function walletForm(): Response
     {
-        return $this->render("application/profile/wallet");
+        $wallet = new WalletService()->getConnectedWallet(Passport::getUserId());
+        return $this->render("application/profile/wallet", [
+            'wallet' => $wallet
+        ]);
     }
 
     #[Get("/password")]

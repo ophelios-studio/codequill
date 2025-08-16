@@ -1,6 +1,7 @@
 {layout ../../layouts/main.latte}
 
 {varType Pulsar\Account\Entities\User $user}
+{varType ?Models\Account\Entities\Wallet $wallet}
 
 {block content}
     <!-- BEGIN PAGE HEADER -->
@@ -29,20 +30,21 @@
                             </p>
 
                             <div class="card">
-                                    <div class="card-body">
-                                        <!-- Connect Button -->
+                                <div class="card-body">
+                                    {if !$wallet}
                                         <button id="connectWalletBtn" class="btn btn-primary">
+                                            <i class="icon bi bi-wallet"></i>
                                             Connect Wallet
                                         </button>
-
+                                    {else}
                                         <!-- Wallet Info (hidden by default) -->
-                                        <div id="walletInfo" class="mt-4" style="display: none;">
+                                        <div id="walletInfo" class="mt-4">
                                             <div class="row">
                                                 <!-- Account & Network Info -->
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label class="text-muted">Address/ENS</label>
-                                                        <div id="accountAddress" class="fw-bold"></div>
+                                                        <label class="text-muted">Address</label>
+                                                        <div id="accountAddress" class="fw-bold">{format('eth_address', $wallet->address)}</div>
                                                     </div>
                                                     <div class="mb-3">
                                                         <label class="text-muted">Network</label>
@@ -61,9 +63,10 @@
                                                 <div class="col-md-6">
                                                     <div id="ensInfo">
                                                         <!-- ENS Avatar -->
-                                                        <div class="mb-3 text-center">
+                                                        <div n:if="$wallet->getAvatar()" class="mb-3 text-center">
                                                             <img id="ensAvatar"
                                                                  alt="ENS Avatar"
+                                                                 src="{$wallet->getAvatar()}"
                                                                  style="display: none; max-width: 100px; border-radius: 50%;"
                                                                  class="img-fluid">
                                                         </div>
@@ -71,7 +74,7 @@
                                                         <!-- ENS Name -->
                                                         <div class="mb-3">
                                                             <label class="text-muted">ENS Name</label>
-                                                            <div id="ensName" class="fw-bold"></div>
+                                                            <div id="ensName" class="fw-bold">{$wallet->ens_name}</div>
                                                         </div>
 
                                                         <!-- Social Links -->
@@ -104,29 +107,11 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-</div>
+                                    {/if}
 
-{*                            <div class="card d-flex flex-column mt-3">*}
-{*                                <div class="card-body d-flex flex-column">*}
-{*                                    <div class="d-flex align-items-center mt-auto">*}
-{*                                        <span class="avatar" style="background-image: url('/assets/images/avatars/9XZOMFiCvhTgjlDTDwZLI8Ajsi5OXV7s.png')"></span>*}
-{*                                        <div class="ms-3">*}
-{*                                            <a href="#" class="text-body">dadajuice.eth</a>*}
-{*                                            <div class="text-secondary" id="accountAddress">0x6ab1...3a39</div>*}
-{*                                        </div>*}
-{*                                    </div>*}
-{*                                    <div class="text-secondary mt-3">*}
-{*                                        <div id="walletInfo" style="display: none;">*}
-{*                                            <div>Network: <span id="networkName"></span></div>*}
-{*                                            <div>Balance: <span id="accountBalance"></span> ETH</div>*}
-{*                                        </div>*}
-{*                                    </div>*}
-{*                                </div>*}
-{*                            </div>*}
 
-{*                            <h3>Delegation</h3>*}
-
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
