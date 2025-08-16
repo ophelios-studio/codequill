@@ -1,0 +1,60 @@
+{layout ../layouts/app.latte}
+
+{block content}
+    <div class="page page-center">
+        <div class="container container-normal py-4">
+            <div class="row align-items-center g-4">
+                <div class="col-lg">
+                    <div class="container-tight">
+                        <div class="text-center mb-4">
+                            <img src="/assets/images/logo-black.png" alt="" style="width: 150px;" />
+                        </div>
+                        <form class="card card-md" action="/signup" method="post" autocomplete="off" novalidate>
+                            <div class="card-body">
+                                <h2 class="card-title text-center mb-4">Create new account</h2>
+                                {include "zf-flash"}
+                                <div class="row g-md-3">
+                                    <div class="col-md-6">
+                                        {include "zf-field-text", "Firstname", "firstname", [
+                                            required: true,
+                                            placeholder: "E.g., Bruce"
+                                        ]}
+                                    </div>
+                                    <div class="col-md-6">
+                                        {include "zf-field-text", "Lastname", "lastname", [
+                                            required: true,
+                                            placeholder: "E.g., Wayne"
+                                        ]}
+                                    </div>
+                                </div>
+                                {include "zf-field-email", "Email address", "email", [
+                                    required: true,
+                                    placeholder: "E.g., bruce@wayne.com",
+                                    addon-flat: true
+                                ]}
+                                {include "zf-field-password", "Password", "password", [
+                                    required: true,
+                                    visibility: true,
+                                    strength: true
+                                ]}
+                                {include "zf-field-checkbox", 'Agree the <a href="/terms" target="_terms" tabindex="-1">terms and policy</a>.', "agree", [
+                                    required: true
+                                ]}
+                                <div class="form-footer">
+                                    <button type="submit" class="btn btn-primary w-100">Create new account</button>
+                                </div>
+                            </div>
+                        </form>
+                        <div class="text-center text-secondary mt-3">Already have account? <a href="/login" tabindex="-1">Sign in</a></div>
+                    </div>
+                </div>
+                <div class="col-lg d-none d-lg-block">
+                    {include "zf-undraw", "confirmation", [
+                        height: 300,
+                        color: "var(--tblr-primary)"
+                    ]}
+                </div>
+            </div>
+        </div>
+    </div>
+{/block}
