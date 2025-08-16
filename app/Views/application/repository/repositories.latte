@@ -2,17 +2,55 @@
 
 {varType Pulsar\Account\Entities\User $user}
 {varType array $repositories}
+{varType ?\stdClass $organization}
+{varType ?Pulsar\OAuth\GitHub\Entities\GitHubUser $github_user}
+
+{do Tracy\Debugger::barDump($github_user)}
+{do Tracy\Debugger::barDump($organization)}
+{do Tracy\Debugger::barDump($repositories)}
 
 {block content}
     <div class="page-header">
         <div class="container-xl">
         <div class="row align-items-center">
+            <div class="col-auto">
+            <span class="avatar avatar-xl" style="background-image: url('{$organization->avatar_url}')"></span>
+            </div>
             <div class="col">
-                <div class="page-pretitle">Overview</div>
-                <h2 class="page-title">Repositories</h2>
+                <h2 class="page-title">{$organization->name}</h2>
+                <div class="page-subtitle">
+                    <div class="row">
+                        <div class="col-auto d-flex justify-items-middle">
+                            <i class="icon bi bi-github me-1"></i>
+                            <a href="{$organization->html_url}" target="_blank" class="text-reset">{$organization->login}</a>
+                        </div>
+                        <div class="col-auto d-flex justify-items-middle">
+                            <i class="icon bi bi-geo-alt me-1"></i>
+                            <span class="text-reset">{$organization->location}</span>
+                        </div>
+                        <div class="col-auto d-flex justify-items-middle">
+                            <i class="icon bi bi-envelope me-1"></i>
+                            <a href="mailat: {$organization->email}" class="text-reset">{$organization->email}</a>
+                        </div>
+                        <div class="col-auto d-flex justify-items-middle">
+                            <i class="icon bi bi-people me-1"></i>
+                            <span class="text-reset">{$organization->followers} follower(s)</span>
+                        </div>
+                        <div class="col-auto text-success d-flex justify-items-middle">
+                            <i class="icon bi bi-patch-check me-1"></i>
+                            Verified
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-auto d-none d-md-flex">
+                <a href="#" class="btn btn-primary">
+                    <i class="icon bi bi-arrow-clockwise"></i>
+                    Refresh
+                </a>
             </div>
         </div>
-        </div>
+    </div>
     </div>
     <div class="page-wrapper">
         <div class="page-body">
@@ -20,7 +58,7 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">Repositories</h3>
+                            <h3 class="card-title">Repositories ({count($repositories)})</h3>
                         </div>
                         <div class="list-group list-group-flush list-group-hoverable">
                             {foreach $repositories as $repository}
@@ -35,7 +73,7 @@
 {*                                        </div>*}
                                         <div class="col text-truncate">
                                             <div class="d-inline-flex">
-                                                <a href="#" class="text-reset d-block">
+                                                <a href="/app/codebase/{$organization->login}/repositories/{$repository->name}" class="text-reset d-block">
                                                     {$repository->full_name}
                                                 </a>
                                                 <span n:if="$repository->is_template" class="ms-2 badge badge-info">Template</span>
