@@ -3,6 +3,7 @@
 use Controllers\Controller;
 use Pulsar\Account\Authenticator;
 use Pulsar\Account\Exceptions\AuthenticationException;
+use Pulsar\Account\Exceptions\AuthenticationPasswordCompromisedException;
 use Pulsar\Account\Exceptions\AuthenticationPasswordResetException;
 use Pulsar\Account\Passport;
 use Pulsar\Account\Services\UserService;
@@ -30,6 +31,14 @@ class LoginController extends Controller
             }
             return $this->render("public/password-reset");
         }
+        if ($view === 'breach-password') {
+            $state = $this->request->getParameter('state');
+            if (is_null($state) || Session::get('reset_password_state') !== $state) {
+                Session::destroy();
+                return $this->redirect("/login");
+            }
+            return $this->render("public/password-breached");
+        }
 
         return $this->render("public/login");
     }
@@ -51,6 +60,8 @@ class LoginController extends Controller
             new Authenticator()->login();
         } catch (AuthenticationPasswordResetException $e) {
             return $this->redirect("/login?view=reset-password&state=" . $e->getState());
+        } catch (AuthenticationPasswordCompromisedException $e) {
+            return $this->redirect("/login?view=breach-password&state=" . $e->getState());
         } catch (AuthenticationException $e) {
             Flash::error($e->getUserMessage());
             return $this->redirect("/login");
