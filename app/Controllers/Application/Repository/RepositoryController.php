@@ -25,7 +25,9 @@ class RepositoryController extends CodeBaseController
         }
         Debugger::barDump($repositories);
         return $this->render("application/repository/repositories", [
-            'repositories' => $repositories
+            'repositories' => $repositories,
+            'organization' => ($organizationLogin != "me") ? $service->getOrganization($organizationLogin) : null,
+            'github_user' => ($organizationLogin !== "me") ? $service->getUser() : null
         ]);
     }
 }
