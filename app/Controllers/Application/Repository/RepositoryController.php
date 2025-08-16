@@ -59,6 +59,10 @@ class RepositoryController extends CodeBaseController
     #[Post("/{org}/repositories/{repository}/claim")]
     public function claim(string $organizationLogin, string $repositoryName): Response
     {
+
+
+
+
         $wallet = new WalletService()->getConnectedWallet(Passport::getUserId());
         if (is_null($wallet)) {
             Flash::warning("No wallet connected.");
