@@ -33,6 +33,10 @@ RUN apt-get update && apt-get install -y libssh2-1-dev && \
     docker-php-ext-enable ssh2 && \
     rm -rf /var/lib/apt/lists/*
 
+RUN apt-get update && \
+    apt-get install -y libgmp-dev
+RUN docker-php-ext-install gmp
+
 # Enable Apache modules
 RUN a2enmod rewrite headers expires
 
