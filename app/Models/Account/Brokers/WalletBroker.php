@@ -105,7 +105,7 @@ class WalletBroker extends Broker
     private function buildResolver(): ENSResolver
     {
         $config = Configuration::read('services')['infura'];
-        return new ENSResolver($config['url']);
+        return new ENSResolver($config['eth_url']);
     }
 
     private function downloadEnsAvatar(string $avatarUrl, string $filename): bool
