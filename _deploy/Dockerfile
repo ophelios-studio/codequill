@@ -59,7 +59,9 @@ COPY --chown=www-data:www-data . /var/www/html
 ENV COMPOSER_ALLOW_SUPERUSER=1
 ENV COMPOSER_GITHUB_PROTOCOLS=https
 
-RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --working-dir=/var/www/html
+ARG GITHUB_TOKEN
+RUN composer config --global github-oauth.github.com $GITHUB_TOKEN \
+ && composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --working-dir=/var/www/html
 
 #RUN chown -R www-data:www-data /var/www/html
 RUN chmod +x _deploy/scripts/init-db.sh
