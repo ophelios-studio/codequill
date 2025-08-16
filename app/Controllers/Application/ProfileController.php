@@ -37,6 +37,7 @@ class ProfileController extends AppController
             return $this->redirect("/app/profile");
         }
         UserService::updatePassword(Passport::getUser(), $this->buildForm(), true);
+        Passport::reloadUser();
         Flash::success(localize("accounts.success.password_updated"));
         return $this->redirect($this->getRouteRoot());
     }
