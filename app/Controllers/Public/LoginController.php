@@ -3,8 +3,11 @@
 use Controllers\Controller;
 use Pulsar\Account\Authenticator;
 use Pulsar\Account\Exceptions\AuthenticationException;
+use Pulsar\Account\Exceptions\AuthenticationPasswordResetException;
 use Pulsar\Account\Passport;
+use Pulsar\Account\Services\UserService;
 use Zephyrus\Application\Flash;
+use Zephyrus\Core\Session;
 use Zephyrus\Network\Response;
 use Zephyrus\Network\Router\Get;
 use Zephyrus\Network\Router\Post;
@@ -14,6 +17,20 @@ class LoginController extends Controller
     #[Get("/login")]
     public function index(): Response
     {
+        if (Passport::isAuthenticated()) {
+            return $this->redirect("/app");
+        }
+
+        $view = $this->request->getParameter('view');
+        if ($view === 'reset-password') {
+            $state = $this->request->getParameter('state');
+            if (is_null($state) || Session::get('reset_password_state') !== $state) {
+                Session::destroy();
+                return $this->redirect("/login");
+            }
+            return $this->render("public/password-reset");
+        }
+
         return $this->render("public/login");
     }
 
@@ -32,10 +49,27 @@ class LoginController extends Controller
     {
         try {
             new Authenticator()->login();
+        } catch (AuthenticationPasswordResetException $e) {
+            return $this->redirect("/login?view=reset-password&state=" . $e->getState());
         } catch (AuthenticationException $e) {
             Flash::error($e->getUserMessage());
             return $this->redirect("/login");
         }
+        return $this->redirect("/app/profile");
+    }
+
+    #[Post("/password-reset")]
+    public function passwordReset(): Response
+    {
+        $username = Session::get('reset_password_username');
+        $user = UserService::readByUsername($username);
+        if (is_null($user)) {
+            return $this->redirect("/login");
+        }
+        $user = UserService::updatePassword($user, $this->buildForm());
+        Flash::success(localize("accounts.success.password_updated"));
+        UserService::updateLastConnection($user->id);
+        Passport::registerUser($user);
         return $this->redirect("/app/profile");
     }
 }
