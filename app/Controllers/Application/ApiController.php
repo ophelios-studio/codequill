@@ -75,7 +75,7 @@ class ApiController extends AppController
                 return $this->json(['error' => 'No wallet connected']);
             }
 
-            $walletService->refreshENS($wallet->address);
+            $walletService->refreshENS($wallet);
 
             // Get updated wallet data
             $updatedWallet = $walletService->getConnectedWallet(Passport::getUserId());

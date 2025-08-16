@@ -45,7 +45,11 @@ session:
 
 services:
   infura:
-    url: !env INFURA_URL
+    eth_url: !env INFURA_ETH_URL
+    polygon_url: !env INFURA_POLYGON_URL
+
+  walrus:
+    api_key: !env WALRUS_API_KEY
 
   moralis:
     api_key: !env MORALIS_API_KEY
