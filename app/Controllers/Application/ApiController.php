@@ -1,6 +1,5 @@
 <?php namespace Controllers\Application;
 
-use Controllers\Controller;
 use Models\Account\Brokers\WalletBroker;
 use Models\Account\Services\WalletService;
 use Pulsar\Account\Passport;
@@ -8,9 +7,9 @@ use Tracy\Debugger;
 use Zephyrus\Network\Response;
 use Zephyrus\Network\Router\Post;
 
-class ApiController extends Controller
+class ApiController extends AppController
 {
-    #[Post('/app/api/wallet/connect')]
+    #[Post('/api/wallet/connect')]
     public function connect(): Response
     {
         $address = $_POST['address'] ?? null;
@@ -66,7 +65,7 @@ class ApiController extends Controller
         }
     }
 
-    #[Post('/app/api/wallet/refresh-ens')]
+    #[Post('/api/wallet/refresh-ens')]
     public function refreshENS(): Response
     {
         try {
@@ -92,7 +91,7 @@ class ApiController extends Controller
         }
     }
 
-    #[Post('/app/api/wallet/disconnect')]
+    #[Post('/api/wallet/disconnect')]
     public function disconnect(): Response
     {
         try {
@@ -109,7 +108,7 @@ class ApiController extends Controller
         }
     }
 
-    #[Post('/app/api/wallet/sync-state')]
+    #[Post('/api/wallet/sync-state')]
     public function syncWalletState(): Response
     {
         try {
