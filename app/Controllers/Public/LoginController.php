@@ -25,6 +25,6 @@ class LoginController extends Controller
             Flash::error($e->getUserMessage());
             return $this->redirect("/login");
         }
-        return $this->redirect("/app");
+        return $this->redirect("/app/profile");
     }
 }
