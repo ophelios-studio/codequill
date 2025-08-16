@@ -4,7 +4,7 @@ services:
       context: "./docker/services/php"
       args:
         - GITHUB_ACCESS_TOKEN=${GITHUB_ACCESS_TOKEN}
-    container_name: "boilerplate_webserver"
+    container_name: "codequill_webserver"
     restart: 'always'
     ports:
       - "80:80"

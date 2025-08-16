@@ -1,6 +1,6 @@
 {
-  "name": "ophelios/pulsar-boilerplate",
-  "description": "Template project for Zephyrus Pulsar.",
+  "name": "ophelios/pulsar-codequill",
+  "description": "The authorship layer for developers.",
   "license": "MIT",
   "authors": [
     {
@@ -15,23 +15,7 @@
     },
     {
       "type": "vcs",
-      "url":  "https://github.com/ophelios-studio/pulsar-oauth-github.git"
-    },
-    {
-      "type": "vcs",
-      "url":  "https://github.com/ophelios-studio/pulsar-oauth-x.git"
-    },
-    {
-      "type": "vcs",
       "url":  "https://github.com/ophelios-studio/pulsar-forms.git"
-    },
-    {
-      "type": "vcs",
-      "url":  "https://github.com/ophelios-studio/pulsar-mailer.git"
-    },
-    {
-      "type": "vcs",
-      "url":  "https://github.com/ophelios-studio/pulsar-account.git"
     }
   ],
   "minimum-stability": "dev",

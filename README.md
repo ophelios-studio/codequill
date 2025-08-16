@@ -1,6 +1,6 @@
-# ZEPHYRUS Pulsar Boilerplate Project
+# CODE QUILL
 
-Project intended to be used as a template base for ZEPHYRUS projects.
+The authorship layer for developers.
 
 ## Development Environment (Docker)
 
@@ -12,12 +12,12 @@ Copy the `.env.example` file to a file named `.env`. Finally, launch the develop
 
 ```ssh
 docker compose up
-docker exec -it zephyrus_webserver composer install
+docker exec -it codequill_webserver composer install
 ```
 
 ### Update Dependencies (Composer)
 ```ssh
-docker exec -it zephyrus_webserver composer update
+docker exec -it codequill_webserver composer update
 ```
 
 
@@ -45,7 +45,7 @@ composer xdebug-disable
 
 ### Generate Latte Cache
 ```ssh
-docker exec -it zephyrus_webserver composer latte-cache
+docker exec -it codequill_webserver composer latte-cache
 ```
 
 

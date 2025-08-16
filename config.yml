@@ -1,6 +1,6 @@
 application:
   debug: !env DEBUG
-  project: "Boilerplate"
+  project: "CodeQuill"
   contact_email: "info@ophelios.com"
   version: "0.0.0"
   locales:
@@ -15,7 +15,7 @@ locale:
 mailer:
   transport: "smtp"
   default_from_address: "info@ophelios.com"
-  default_from_name: "Zephyrus"
+  default_from_name: "CodeQuill"
   smtp:
     enabled: true
     host: "localhost"
