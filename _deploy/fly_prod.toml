@@ -1,0 +1,55 @@
+# fly.toml app configuration file generated for zephyrus-fly-test on 2025-08-14T22:46:13-04:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'codequill'
+primary_region = 'yyz'
+
+[build]
+  dockerfile = "Dockerfile"
+
+[deploy]
+  release_command = '/var/www/html/_deploy/scripts/init-db.sh'
+
+[env]
+  APP_CACHE_UPDATE = 'always'
+  APP_DEBUG = '0'
+  APP_ENV = 'prod'
+
+[http_service]
+  internal_port = 80
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ['app']
+
+[[services]]
+  protocol = 'tcp'
+  internal_port = 80
+
+  [[services.ports]]
+    port = 80
+    handlers = ['http']
+
+  [[services.ports]]
+    port = 443
+    handlers = ['tls', 'http']
+
+  [services.concurrency]
+    type = 'connections'
+    hard_limit = 25
+    soft_limit = 20
+
+  [[services.http_checks]]
+    interval = '10s'
+    timeout = '2s'
+    method = 'get'
+    path = '/'
+    protocol = 'http'
+
+[[vm]]
+  memory = '2gb'
+  cpu_kind = 'shared'
+  cpus = 4
