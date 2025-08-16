@@ -1,0 +1,54 @@
+{layout ../layouts/app.latte}
+
+{varType Pulsar\OAuth\GitHub\Entities\GitHubUser $user}
+
+{block content}
+    <div class="page page-center">
+        <div class="container container-normal py-4">
+            <div class="row align-items-center g-4">
+                <div class="col-lg">
+                    <div class="container-tight">
+                        <div class="text-center mb-4">
+                            <img src="/assets/images/logo-black.png" alt="" style="width: 150px;" />
+                        </div>
+                        <form class="card card-md" action="/signup-github" method="post" autocomplete="off" novalidate>
+                            <div class="card-body">
+                                <h2 class="card-title text-center mb-4">Complete your account</h2>
+                                <p>You have signup using your GitHub account, but we are missing some information to complete your profile.</p>
+                                {include "zf-flash"}
+                                {include "zf-field-email", "Email address", "email", [
+                                    required: true,
+                                    placeholder: "E.g., bruce@wayne.com",
+                                    addon-flat: true,
+                                    disabled: true,
+                                    default: $user->email
+                                ]}
+                                {include "zf-field-text", "Firstname", "firstname", [
+                                    required: true,
+                                    placeholder: "E.g., Bruce"
+                                ]}
+                                {include "zf-field-text", "Lastname", "lastname", [
+                                    required: true,
+                                    placeholder: "E.g., Wayne"
+                                ]}
+                                {include "zf-field-checkbox", 'Agree the <a href="/terms" target="_terms" tabindex="-1">terms and policy</a>.', "agree", [
+                                    required: true
+                                ]}
+                                <div class="form-footer">
+                                    <button type="submit" class="btn btn-primary w-100">Create new account</button>
+                                </div>
+                            </div>
+                        </form>
+                        <div class="text-center text-secondary mt-3">Already have an account? <a href="/" tabindex="-1">Sign in</a></div>
+                    </div>
+                </div>
+                <div class="col-lg d-none d-lg-block">
+                    {include "zf-undraw", "confirmation", [
+                        height: 300,
+                        color: "var(--tblr-primary)"
+                    ]}
+                </div>
+            </div>
+        </div>
+    </div>
+{/block}
