@@ -113,8 +113,6 @@ export default class WalletConnect {
                 console.error('Backend disconnection error:', error);
             }
         }
-
-        this.updateUI();
     }
 
 
