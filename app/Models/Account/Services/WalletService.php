@@ -27,9 +27,9 @@ class WalletService
         $this->walletBroker->storeWalletConnection($address, $userId);
     }
 
-    public function refreshENS(string $address): void
+    public function refreshENS(Wallet $wallet): void
     {
-        $this->walletBroker->refreshENSData($address);
+        $this->walletBroker->refreshENSData($wallet);
     }
 
     public function disconnect(string $address): void
