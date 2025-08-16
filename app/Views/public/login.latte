@@ -1,5 +1,7 @@
 {layout ../layouts/app.latte}
 
+{varType string $github_url}
+
 {block content}
     <div class="page page-center">
         <div class="container container-normal py-4">
@@ -23,6 +25,17 @@
                                         <button type="submit" class="btn btn-primary w-100">Sign in</button>
                                     </div>
                                 </form>
+                            </div>
+                            <div class="hr-text">or</div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col">
+                                        <a href="{$github_url}" class="btn btn-4 w-100">
+                                            <i class="bi bi-github icon"></i>
+                                            Login with Github
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="text-center text-secondary mt-3">Don't have an account yet? <a href="/signup" tabindex="-1">Sign up</a></div>

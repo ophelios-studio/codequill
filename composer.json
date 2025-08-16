@@ -24,6 +24,10 @@
     {
       "type": "vcs",
       "url":  "https://github.com/ophelios-studio/pulsar-account.git"
+    },
+    {
+      "type": "vcs",
+      "url":  "https://github.com/ophelios-studio/pulsar-oauth-github.git"
     }
   ],
   "minimum-stability": "dev",
@@ -35,6 +39,7 @@
     "ophelios/pulsar-forms": "dev-main",
     "ophelios/pulsar-mailer": "dev-main",
     "ophelios/pulsar-account": "dev-main",
+    "ophelios/pulsar-oauth-github": "dev-main",
     "ext-json": "*",
     "ext-fileinfo": "*",
     "ext-zip": "*",
