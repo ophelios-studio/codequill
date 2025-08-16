@@ -77,6 +77,7 @@
     "xdebug-disable": "bash bin/docker-xdebug.sh disable webserver"
   },
   "config": {
+    "github-protocols": ["https"],
     "allow-plugins": {
       "nodejs-php-fallback/nodejs-php-fallback": true
     }
