@@ -121,7 +121,7 @@
                             {include "zf-avatar-image", "/assets/images/avatars/" . $user->avatar, [size: "sm"]}
                             <div class="d-none d-xl-block ps-2">
                                 <div>{$user->fullname}</div>
-                                <div n:if="$wallet" class="mt-1 small text-secondary">{$wallet->getName()}</div>
+                                <div n:if="$wallet" class="mt-1 small text-secondary"><span class="status-dot status-green me-1"></span>{$wallet->getName()}</div>
                             </div>
                         </a>
                         <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow" data-bs-theme="light">
