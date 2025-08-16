@@ -11,4 +11,10 @@ class HomeController extends Controller
     {
         return $this->render("welcome");
     }
+
+    #[Get("/health")]
+    public function health(): Response
+    {
+        return $this->json(['status' => 'ok']);
+    }
 }
