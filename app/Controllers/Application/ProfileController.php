@@ -10,6 +10,12 @@ class ProfileController extends AppController
     #[Get("/")]
     public function index(): Response
     {
-        return $this->render("application/profile-settings");
+        return $this->render("application/profile/settings");
+    }
+
+    #[Get("/password")]
+    public function changePasswordForm(): Response
+    {
+        return $this->render("application/profile/password");
     }
 }
