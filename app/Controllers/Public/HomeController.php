@@ -3,7 +3,7 @@
 use Zephyrus\Network\Response;
 use Zephyrus\Network\Router\Get;
 
-class AppController extends Controller
+class HomeController extends Controller
 {
     #[Get("/")]
     public function index(): Response
