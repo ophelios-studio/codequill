@@ -15,7 +15,7 @@
                                 {include "zf-flash"}
                                 <form action="/" method="post" autocomplete="off" novalidate>
                                     {include "zf-field-email", "Email address", "username"}
-                                    {include "zf-field-password", 'Password', "password", [
+                                    {include "zf-field-password", 'Password<span class="form-label-description"><a href="/forgot-password">I forgot password</a></span>', "password", [
                                         visibility: true
                                     ]}
                                     {include "zf-field-checkbox", "Remember me on this device", "remember"}
