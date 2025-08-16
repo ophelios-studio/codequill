@@ -1,8 +1,3 @@
-# fly.toml app configuration file generated for zephyrus-fly-test-dev on 2025-08-14T21:57:59-04:00
-#
-# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
-#
-
 app = 'codequill-dev'
 primary_region = 'yyz'
 
