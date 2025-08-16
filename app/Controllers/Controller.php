@@ -16,7 +16,8 @@ abstract class Controller extends BaseController
 {
     public function before(): ?Response
     {
-        return parent::before();
+        return $this->attemptAutomatedLogin()
+            ?? parent::before();
     }
 
     public function render(string $page, array $args = []): Response
@@ -112,5 +113,20 @@ abstract class Controller extends BaseController
             }
         }
         return $loadedLanguage;
+    }
+
+    private function attemptAutomatedLogin(): ?Response
+    {
+        if (!Passport::isAuthenticated()) {
+            try {
+                $authenticator = new Authenticator();
+                if ($authenticator->automatedLogin()) {
+                    return $this->redirect($this->request->getRoute());
+                }
+            } catch (RecognizerException $exception) {
+                Flash::error($exception->getMessage());
+            }
+        }
+        return null;
     }
 }
