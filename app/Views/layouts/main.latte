@@ -18,6 +18,7 @@
 {import ../pulsar/forms/select.latte}
 
 {varType Pulsar\Account\Entities\User $user}
+{varType ?Models\Account\Entities\Wallet $wallet}
 
 <!doctype html>
 <!--
@@ -208,7 +209,7 @@
                             {include "zf-avatar-image", "/assets/images/avatars/" . $user->avatar, [size: "sm"]}
                             <div class="d-none d-xl-block ps-2">
                                 <div>{$user->fullname}</div>
-                                <div class="mt-1 small text-secondary">dadajuice.booe.eth</div>
+                                <div n:if="$wallet" class="mt-1 small text-secondary">{$wallet->getName()}</div>
                             </div>
                         </a>
                         <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow" data-bs-theme="light">
