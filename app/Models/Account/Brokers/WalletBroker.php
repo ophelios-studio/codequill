@@ -61,21 +61,29 @@ class WalletBroker extends Broker
         return $this->selectSingle($sql, [$user_id]);
     }
 
-    public function refreshENSData(string $address): void
+    public function refreshENSData(Wallet $wallet): void
     {
         $ensResolver = $this->buildResolver();
-        $ensData = $ensResolver->getENSData($address);
-
+        $ensData = $ensResolver->getENSData($wallet->address);
         $sql = "UPDATE wallet 
                 SET ens_name = :ens_name,
                     ens_avatar = :ens_avatar,
                     ens_data = :ens_data
                 WHERE address = :address";
 
+        $filename = $wallet->ens_avatar;
+        if ($ensData['avatar']) {
+            if ($wallet->ens_data->ens_avatar !== $ensData['avatar']) {
+                unlink(ROOT_DIR . '/public/assets/images/avatars/' . $wallet->ens_avatar);
+                $filename = Cryptography::randomString(32) . '.png';
+                $this->downloadEnsAvatar($ensData['avatar'], $filename);
+            }
+        }
+
         $this->query($sql, [
-            'address' => strtolower($address),
+            'address' => strtolower($wallet->address),
             'ens_name' => $ensData['name'],
-            'ens_avatar' => $ensData['avatar'],
+            'ens_avatar' => $filename,
             'ens_data' => json_encode([
                 'ens_avatar' => $ensData['avatar'],
                 'twitter' => $ensData['twitter'],

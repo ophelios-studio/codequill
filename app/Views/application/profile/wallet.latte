@@ -25,18 +25,25 @@
                         <div class="card-body">
                             <h2 class="mb-4">Wallet connection</h2>
                             {include "zf-flash"}
-                            <p>
+                            <p n:if="!$wallet">
                                 To access our advanced features, you'll need to connect your Web3 wallet. This secure connection allows you to interact with blockchain-based features and verify your ownership of digital assets. We support popular wallets like MetaMask, WalletConnect, and Coinbase Wallet. Don't have a Web3 wallet yet? We recommend starting with <a href="https://metamask.io/" target="_blank" rel="noopener">MetaMask</a>, which is free and easy to set up.
                             </p>
+                            <p n:else>
+                                Your wallet is connected. You can now claim authorship ✍️ of your repositories and snapshot code. You can refresh your wallet information at any time.
+                            </p>
+                            {if !$wallet}
+                                <button id="connectWalletBtn" class="btn btn-primary">
+                                    <i class="icon bi bi-wallet"></i>
+                                    Connect Wallet
+                                </button>
+                            {else}
+                                <button id="refreshWalletBtn" class="btn btn-primary">
+                                    <i class="icon bi bi-arrow-clockwise"></i>
+                                    Refresh Wallet (ENS)
+                                </button>
 
-                            <div class="card">
-                                <div class="card-body">
-                                    {if !$wallet}
-                                        <button id="connectWalletBtn" class="btn btn-primary">
-                                            <i class="icon bi bi-wallet"></i>
-                                            Connect Wallet
-                                        </button>
-                                    {else}
+                                <div class="card mt-3">
+                                    <div class="card-body">
                                         <!-- Wallet Info (hidden by default) -->
                                         <div id="walletInfo" class="mt-4">
                                             <div class="row">
@@ -67,7 +74,7 @@
                                                             <img id="ensAvatar"
                                                                  alt="ENS Avatar"
                                                                  src="{$wallet->getAvatar()}"
-                                                                 style="display: none; max-width: 100px; border-radius: 50%;"
+                                                                 style="max-width: 100px; border-radius: 50%;"
                                                                  class="img-fluid">
                                                         </div>
 
@@ -81,7 +88,6 @@
                                                         <div id="ensSocials" class="d-flex flex-column gap-2">
                                                             <a id="twitterLink"
                                                                target="_blank"
-                                                               style="display: none;"
                                                                class="btn btn-outline-primary btn-sm">
                                                                 <i class="bi bi-twitter"></i>
                                                                 <span class="ms-2">Twitter</span>
@@ -89,7 +95,6 @@
 
                                                             <a id="githubLink"
                                                                target="_blank"
-                                                               style="display: none;"
                                                                class="btn btn-outline-dark btn-sm">
                                                                 <i class="bi bi-github"></i>
                                                                 <span class="ms-2">GitHub</span>
@@ -97,7 +102,6 @@
 
                                                             <a id="urlLink"
                                                                target="_blank"
-                                                               style="display: none;"
                                                                class="btn btn-outline-secondary btn-sm">
                                                                 <i class="bi bi-link-45deg"></i>
                                                                 <span class="ms-2">Website</span>
@@ -108,8 +112,6 @@
                                             </div>
                                         </div>
                                     {/if}
-
-
                                 </div>
                             </div>
                         </div>

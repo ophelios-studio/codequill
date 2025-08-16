@@ -3,12 +3,15 @@
 use Models\Account\Services\WalletService;
 use Pulsar\Account\Passport;
 use Tracy\Debugger;
+use Zephyrus\Application\Flash;
 use Zephyrus\Network\Response;
 use Zephyrus\Network\Router\Post;
+use Zephyrus\Network\Router\Root;
 
+#[Root("/app/api")]
 class ApiController extends AppController
 {
-    #[Post('/api/wallet/connect')]
+    #[Post('/wallet/connect')]
     public function connect(): Response
     {
         $address = $_POST['address'] ?? null;
@@ -45,7 +48,7 @@ class ApiController extends AppController
 
             // Get the wallet data to return
             $wallet = $walletService->getConnectedWallet(Passport::getUserId());
-
+            Flash::success('Wallet connected successfully with address: ' . $wallet->address . ' 🎉!');
             return $this->json([
                 'success' => true,
                 'ens_name' => $wallet->ens_name ?? null,
@@ -61,7 +64,7 @@ class ApiController extends AppController
         }
     }
 
-    #[Post('/api/wallet/refresh-ens')]
+    #[Post('/wallet/refresh-ens')]
     public function refreshENS(): Response
     {
         try {
@@ -76,6 +79,7 @@ class ApiController extends AppController
 
             // Get updated wallet data
             $updatedWallet = $walletService->getConnectedWallet(Passport::getUserId());
+            Flash::success('Wallet refreshed successfully 🎉!');
             return $this->json([
                 'success' => true,
                 'ens_name' => $updatedWallet->ens_name,
@@ -87,7 +91,7 @@ class ApiController extends AppController
         }
     }
 
-    #[Post('/api/wallet/disconnect')]
+    #[Post('/wallet/disconnect')]
     public function disconnect(): Response
     {
         try {
@@ -97,6 +101,7 @@ class ApiController extends AppController
                 return $this->json(['error' => 'No wallet connected']);
             }
             $walletService->disconnect($wallet->address);
+            Flash::success("Wallet disconnected successfully 🎉!");
             return $this->json(['success' => true]);
         } catch (\Exception $e) {
             http_response_code(500);
