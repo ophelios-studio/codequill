@@ -40,7 +40,7 @@ session:
   storage: "database"
   table: "public.session"
   encrypted: false
-  lifetime: 1440
+  lifetime: 28800
   auto_start: true
 
 services:
