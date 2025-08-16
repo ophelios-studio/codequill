@@ -1,0 +1,39 @@
+{layout ../layouts/app.latte}
+
+{block content}
+    <div class="page page-center">
+        <div class="container container-normal py-4">
+            <div class="row align-items-center g-4">
+                <div class="col-lg">
+                    <div class="container-tight">
+                        <div class="text-center mb-4">
+                            <img src="/assets/images/logo-black.png" alt="" style="width: 150px;" />
+                        </div>
+                        <div class="card card-md">
+                            <div class="card-body">
+                                <h2 class="h2 text-center mb-4">Login to your account</h2>
+                                {include "zf-flash"}
+                                <form action="/" method="post" autocomplete="off" novalidate>
+                                    {include "zf-field-email", "Email address", "username"}
+                                    {include "zf-field-password", 'Password', "password", [
+                                        visibility: true
+                                    ]}
+                                    {include "zf-field-checkbox", "Remember me on this device", "remember"}
+                                    <div class="form-footer">
+                                        <button type="submit" class="btn btn-primary w-100">Sign in</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg d-none d-lg-block">
+                    {include "zf-undraw", "confirmation", [
+                        height: 300,
+                        color: "var(--tblr-primary)"
+                    ]}
+                </div>
+            </div>
+        </div>
+    </div>
+{/block}
