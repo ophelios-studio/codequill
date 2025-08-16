@@ -47,20 +47,23 @@
                     <div class="card-body">
                         <div class="row align-items-center">
                             <div class="col-10">
-                                <h3 class="h1">Claim authorship ✍️</h3>
+                                <h1>Claim authorship ✍️</h1>
+                                {include "zf-flash"}
                                 {if $wallet}
                                     <div class="markdown">
                                         Everything is ready for you to take ownership of your code on the Blockchain. This process will mint an NFT into your connected wallet proving your authorship.
                                     </div>
                                     <div class="mt-3">
-                                        <a href="#" class="btn btn-primary">
-                                            <i class="icon bi bi-vector-pen"></i>
-                                            Claim authorship
-                                        </a>
+                                        <form action="/app/codebase/{$organization->login}/repositories/{$repository->name}/claim" method="post">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="icon bi bi-vector-pen"></i>
+                                                Claim authorship
+                                            </button>
+                                        </form>
                                     </div>
                                 {else}
                                     <div class="markdown">
-                                        You must connect an Ethereum wallet to claim authorship of this repository. Use the button bellow to redirect to your profile settings and setup your wallet connection. Once its connected, come back to this repository and claim authorship.
+                                        You must connect an Ethereum wallet to claim authorship of this repository. Use the button below to redirect to your profile settings and setup your wallet connection. Once its connected, come back to this repository and claim authorship.
                                     </div>
                                     <div class="mt-3">
                                         <a href="/app/profile/wallet" class="btn btn-primary">
