@@ -17,7 +17,7 @@
     <!-- BEGIN PAGE BODY -->
     <div class="page-body">
         <div class="container-xl">
-            <form class="card" action="/app/profile/mfa-preferred" method="post">
+            <div class="card">
                 <div class="row g-0">
                     {include components/navigation.latte}
                     <div class="col-12 col-md-9 d-flex flex-column">
@@ -27,9 +27,110 @@
                             <p>
                                 To access our advanced features, you'll need to connect your Web3 wallet. This secure connection allows you to interact with blockchain-based features and verify your ownership of digital assets. We support popular wallets like MetaMask, WalletConnect, and Coinbase Wallet. Don't have a Web3 wallet yet? We recommend starting with <a href="https://metamask.io/" target="_blank" rel="noopener">MetaMask</a>, which is free and easy to set up.
                             </p>
+
+                            <div class="card">
+                                    <div class="card-body">
+                                        <!-- Connect Button -->
+                                        <button id="connectWalletBtn" class="btn btn-primary">
+                                            Connect Wallet
+                                        </button>
+
+                                        <!-- Wallet Info (hidden by default) -->
+                                        <div id="walletInfo" class="mt-4" style="display: none;">
+                                            <div class="row">
+                                                <!-- Account & Network Info -->
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label class="text-muted">Address/ENS</label>
+                                                        <div id="accountAddress" class="fw-bold"></div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="text-muted">Network</label>
+                                                        <div id="networkName" class="fw-bold"></div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="text-muted">Balance</label>
+                                                        <div>
+                                                            <span id="accountBalance" class="fw-bold"></span>
+                                                            <span class="ms-1">ETH</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- ENS Info -->
+                                                <div class="col-md-6">
+                                                    <div id="ensInfo">
+                                                        <!-- ENS Avatar -->
+                                                        <div class="mb-3 text-center">
+                                                            <img id="ensAvatar"
+                                                                 alt="ENS Avatar"
+                                                                 style="display: none; max-width: 100px; border-radius: 50%;"
+                                                                 class="img-fluid">
+                                                        </div>
+
+                                                        <!-- ENS Name -->
+                                                        <div class="mb-3">
+                                                            <label class="text-muted">ENS Name</label>
+                                                            <div id="ensName" class="fw-bold"></div>
+                                                        </div>
+
+                                                        <!-- Social Links -->
+                                                        <div id="ensSocials" class="d-flex flex-column gap-2">
+                                                            <a id="twitterLink"
+                                                               target="_blank"
+                                                               style="display: none;"
+                                                               class="btn btn-outline-primary btn-sm">
+                                                                <i class="bi bi-twitter"></i>
+                                                                <span class="ms-2">Twitter</span>
+                                                            </a>
+
+                                                            <a id="githubLink"
+                                                               target="_blank"
+                                                               style="display: none;"
+                                                               class="btn btn-outline-dark btn-sm">
+                                                                <i class="bi bi-github"></i>
+                                                                <span class="ms-2">GitHub</span>
+                                                            </a>
+
+                                                            <a id="urlLink"
+                                                               target="_blank"
+                                                               style="display: none;"
+                                                               class="btn btn-outline-secondary btn-sm">
+                                                                <i class="bi bi-link-45deg"></i>
+                                                                <span class="ms-2">Website</span>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+</div>
+
+{*                            <div class="card d-flex flex-column mt-3">*}
+{*                                <div class="card-body d-flex flex-column">*}
+{*                                    <div class="d-flex align-items-center mt-auto">*}
+{*                                        <span class="avatar" style="background-image: url('/assets/images/avatars/9XZOMFiCvhTgjlDTDwZLI8Ajsi5OXV7s.png')"></span>*}
+{*                                        <div class="ms-3">*}
+{*                                            <a href="#" class="text-body">dadajuice.eth</a>*}
+{*                                            <div class="text-secondary" id="accountAddress">0x6ab1...3a39</div>*}
+{*                                        </div>*}
+{*                                    </div>*}
+{*                                    <div class="text-secondary mt-3">*}
+{*                                        <div id="walletInfo" style="display: none;">*}
+{*                                            <div>Network: <span id="networkName"></span></div>*}
+{*                                            <div>Balance: <span id="accountBalance"></span> ETH</div>*}
+{*                                        </div>*}
+{*                                    </div>*}
+{*                                </div>*}
+{*                            </div>*}
+
+{*                            <h3>Delegation</h3>*}
+
                         </div>
+                    </div>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 {/block}

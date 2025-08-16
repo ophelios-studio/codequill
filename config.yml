@@ -44,6 +44,8 @@ session:
   auto_start: true
 
 services:
+  infura:
+    url: !env INFURA_URL
   github:
     client_id: !env GITHUB_CLIENT_ID
     client_secret: !env GITHUB_CLIENT_SECRET
@@ -65,6 +67,7 @@ security:
     key: !env ENCRYPTION_KEY
   csrf:
     enabled: true
+    exceptions: ['\/app\/api.*']
   ids:
     enabled: true
     impact_threshold: 50

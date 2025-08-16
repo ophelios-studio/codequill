@@ -290,6 +290,12 @@
         </div>
     </div>
     {block modals}{/block}
+    <script nonce="{nonce()}" type="module">
+        import WalletConnect from '/javascripts/modules/WalletConnect.js';
+        document.addEventListener('DOMContentLoaded', () => {
+            const walletConnect = new WalletConnect();
+        });
+    </script>
     {block js}{/block}
 </body>
 </html>
