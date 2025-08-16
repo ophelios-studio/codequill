@@ -10,6 +10,6 @@ class ProfileController extends AppController
     #[Get("/")]
     public function index(): Response
     {
-        return $this->html("<h3>You have successfully logged in! More to come.</h3>");
+        return $this->render("application/profile-settings");
     }
 }
