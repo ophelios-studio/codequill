@@ -1,6 +1,5 @@
 <?php namespace Controllers\Application;
 
-use Models\Account\Brokers\WalletBroker;
 use Models\Account\Services\WalletService;
 use Pulsar\Account\Passport;
 use Tracy\Debugger;
@@ -19,10 +18,7 @@ class ApiController extends AppController
         }
 
         try {
-            $walletService = new WalletService(new WalletBroker());
-
-            Debugger::log('Attempting to connect wallet: ' . $address);
-            Debugger::log('User ID: ' . Passport::getUserId());
+            $walletService = new WalletService();
 
             // Check if user already has a connected wallet
             $existingWallet = $walletService->getConnectedWallet(Passport::getUserId());
@@ -69,7 +65,7 @@ class ApiController extends AppController
     public function refreshENS(): Response
     {
         try {
-            $walletService = new WalletService(new WalletBroker());
+            $walletService = new WalletService();
             $wallet = $walletService->getConnectedWallet(Passport::getUserId());
 
             if (!$wallet) {
@@ -95,7 +91,7 @@ class ApiController extends AppController
     public function disconnect(): Response
     {
         try {
-            $walletService = new WalletService(new WalletBroker());
+            $walletService = new WalletService();
             $wallet = $walletService->getConnectedWallet(Passport::getUserId());
             if (!$wallet) {
                 return $this->json(['error' => 'No wallet connected']);
@@ -107,27 +103,4 @@ class ApiController extends AppController
             return $this->json(['error' => 'Failed to disconnect wallet']);
         }
     }
-
-    #[Post('/api/wallet/sync-state')]
-    public function syncWalletState(): Response
-    {
-        try {
-            $data = json_decode(file_get_contents('php://input'), true);
-            $address = $data['address'] ?? null;
-            $isConnected = $data['isConnected'] ?? false;
-
-            $walletService = new WalletService(new WalletBroker());
-
-            if (!$isConnected && $address) {
-                // If MetaMask is disconnected, clean up our database
-                $walletService->disconnect($address);
-            }
-
-            return $this->json(['success' => true]);
-        } catch (\Exception $e) {
-            http_response_code(500);
-            return $this->json(['error' => 'Failed to sync wallet state']);
-        }
-    }
-
 }
