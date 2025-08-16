@@ -1,0 +1,61 @@
+{layout ../../layouts/main.latte}
+
+{varType Pulsar\Account\Entities\User $user}
+{varType array $repositories}
+
+{block content}
+    <div class="page-header">
+        <div class="container-xl">
+        <div class="row align-items-center">
+            <div class="col">
+                <div class="page-pretitle">Overview</div>
+                <h2 class="page-title">Repositories</h2>
+            </div>
+        </div>
+        </div>
+    </div>
+    <div class="page-wrapper">
+        <div class="page-body">
+            <div class="container-xl justify-content-middle">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Repositories</h3>
+                        </div>
+                        <div class="list-group list-group-flush list-group-hoverable">
+                            {foreach $repositories as $repository}
+                                {varType Pulsar\OAuth\GitHub\Entities\GitHubRepository $repository}
+                                <div class="list-group-item">
+                                    <div class="row align-items-center">
+                                        <div class="col-auto"><span class="badge bg-orange"></span></div>
+{*                                        <div class="col-auto">*}
+{*                                            <a href="#">*}
+{*                                                <span class="avatar avatar-1" style="background-image: url(./static/avatars/000m.jpg)"> </span>*}
+{*                                            </a>*}
+{*                                        </div>*}
+                                        <div class="col text-truncate">
+                                            <div class="d-inline-flex">
+                                                <a href="#" class="text-reset d-block">
+                                                    {$repository->full_name}
+                                                </a>
+                                                <span n:if="$repository->is_template" class="ms-2 badge badge-info">Template</span>
+                                                <span n:if="$repository->visibility == 'private'" class=" ms-2 badge bg-orange-lt"><i class="icon bi bi-lock"></i>Private</span>
+                                            </div>
+
+{*                                            <div class="d-block text-secondary text-truncate mt-n1">Change deprecated html tags to text decoration classes (#29604)</div>*}
+                                        </div>
+                                        <div class="col-auto">
+                                            <a href="#" class="list-group-item-actions"><!-- Download SVG icon from http://tabler.io/icons/icon/star -->
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon text-secondary icon-2">
+                                                    <path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"></path></svg></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {/foreach}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{/block}
