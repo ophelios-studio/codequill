@@ -1,0 +1,35 @@
+{layout ../../layouts/main.latte}
+
+{varType Pulsar\Account\Entities\User $user}
+
+{block content}
+    <!-- BEGIN PAGE HEADER -->
+    <div class="page-header d-print-none" aria-label="Page header">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <h2 class="page-title">Account Settings</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END PAGE HEADER -->
+    <!-- BEGIN PAGE BODY -->
+    <div class="page-body">
+        <div class="container-xl">
+            <form class="card" action="/app/profile/mfa-preferred" method="post">
+                <div class="row g-0">
+                    {include components/navigation.latte}
+                    <div class="col-12 col-md-9 d-flex flex-column">
+                        <div class="card-body">
+                            <h2 class="mb-4">Wallet connection</h2>
+                            {include "zf-flash"}
+                            <p>
+                                To access our advanced features, you'll need to connect your Web3 wallet. This secure connection allows you to interact with blockchain-based features and verify your ownership of digital assets. We support popular wallets like MetaMask, WalletConnect, and Coinbase Wallet. Don't have a Web3 wallet yet? We recommend starting with <a href="https://metamask.io/" target="_blank" rel="noopener">MetaMask</a>, which is free and easy to set up.
+                            </p>
+                        </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{/block}

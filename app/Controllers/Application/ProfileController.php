@@ -18,6 +18,12 @@ class ProfileController extends AppController
         return $this->render("application/profile/settings");
     }
 
+    #[Get("/wallet")]
+    public function walletForm(): Response
+    {
+        return $this->render("application/profile/wallet");
+    }
+
     #[Get("/password")]
     public function changePasswordForm(): Response
     {
