@@ -3,6 +3,7 @@
 use Controllers\Controller;
 use Pulsar\Account\Authenticator;
 use Pulsar\Account\Exceptions\AuthenticationException;
+use Pulsar\Account\Passport;
 use Zephyrus\Application\Flash;
 use Zephyrus\Network\Response;
 use Zephyrus\Network\Router\Get;
@@ -14,6 +15,16 @@ class LoginController extends Controller
     public function index(): Response
     {
         return $this->render("public/login");
+    }
+
+    #[Get("/logout")]
+    public function logout(): Response
+    {
+        if (!Passport::isAuthenticated()) {
+            return $this->redirect("/login");
+        }
+        new Authenticator()->logout();
+        return $this->redirect("/login");
     }
 
     #[Post("/")]
