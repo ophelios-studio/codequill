@@ -1,0 +1,58 @@
+{layout ../../layouts/main.latte}
+
+{varType Pulsar\Account\Entities\User $user}
+{varType array $organizations}
+{varType Pulsar\OAuth\GitHub\Entities\GitHubUser $github_user}
+{varType array $user_repos}
+
+{block content}
+    <div class="page-header">
+        <div class="container-xl">
+        <div class="row align-items-center">
+            <div class="col">
+                <div class="page-pretitle">Overview</div>
+                <h2 class="page-title">Organizations</h2>
+            </div>
+        </div>
+        </div>
+    </div>
+    <h1 class="text-center my-5">Pick an organization</h1>
+    <div class="page-wrapper">
+        <div class="page-body">
+            <div class="container-xl justify-content-middle">
+                <div class="row row-cards">
+                    <div class="col-8">
+                        <a href="/app/codebase/me/repositories" class="card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h1 class="mb-0">{$github_user->login}</h1>
+                                        <div class="text-muted">{$github_user->name}</div>
+                                        <p class="mt-3 mb-0" style="font-weight: 400; letter-spacing: 2px; text-transform: uppercase">{count($user_repos)} repositories</p>
+                                    </div>
+                                    <div class="avatar avatar-xl rounded-circle" style="background-image: url('{$github_user->avatar_url|noescape}');"></div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    {foreach $organizations as $organization}
+                        <div class="col-8">
+                            <a href="/app/codebase/{$organization->login}/repositories" class="card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h1 class="mb-0">{$organization->login}</h1>
+                                            <div class="text-muted">{$organization->description}</div>
+                                            <p class="mt-3 mb-0" style="font-weight: 400; letter-spacing: 2px; text-transform: uppercase">{count($organization->repos)} repositories</p>
+                                        </div>
+                                        <div class="avatar avatar-xl rounded-circle" style="background-image: url('{$organization->avatar_url|noescape}');"></div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    {/foreach}
+                </div>
+            </div>
+        </div>
+    </div>
+{/block}
