@@ -22,7 +22,7 @@ class LoginController extends Controller
     public function index(): Response
     {
         if (Passport::isAuthenticated()) {
-            return $this->redirect("/app");
+            return $this->redirect("/app/profile");
         }
 
         $view = $this->request->getParameter('view');
