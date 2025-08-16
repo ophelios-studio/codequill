@@ -38,10 +38,10 @@ primary_region = 'yyz'
     soft_limit = 20
 
   [[services.http_checks]]
-    interval = '10s'
-    timeout = '2s'
+    interval = '15s'
+    timeout = '8s'
     method = 'get'
-    path = '/'
+    path = '/health'
     protocol = 'http'
 
 [[vm]]
