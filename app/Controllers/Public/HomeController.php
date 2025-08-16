@@ -1,5 +1,6 @@
-<?php namespace Controllers;
+<?php namespace Controllers\Public;
 
+use Controllers\Controller;
 use Zephyrus\Network\Response;
 use Zephyrus\Network\Router\Get;
 
