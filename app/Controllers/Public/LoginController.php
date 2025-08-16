@@ -7,6 +7,9 @@ use Pulsar\Account\Exceptions\AuthenticationPasswordCompromisedException;
 use Pulsar\Account\Exceptions\AuthenticationPasswordResetException;
 use Pulsar\Account\Passport;
 use Pulsar\Account\Services\UserService;
+use Pulsar\OAuth\GitHub\GitHubOauth;
+use Pulsar\OAuth\GitHub\GitHubOauthConfiguration;
+use Zephyrus\Application\Configuration;
 use Zephyrus\Application\Flash;
 use Zephyrus\Core\Session;
 use Zephyrus\Network\Response;
@@ -40,7 +43,12 @@ class LoginController extends Controller
             return $this->render("public/password-breached");
         }
 
-        return $this->render("public/login");
+        $config = new GitHubOauthConfiguration(Configuration::read('services')['github']);
+        $githubOAuth = new GitHubOauth($config);
+        $gitHubAuthorizeUrl = $githubOAuth->getAuthorizationUrl(['user', 'repo', 'read:org']);
+        return $this->render("public/login", [
+            "github_url" => $gitHubAuthorizeUrl
+        ]);
     }
 
     #[Get("/logout")]

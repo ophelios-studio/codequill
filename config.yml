@@ -44,6 +44,11 @@ session:
   auto_start: true
 
 services:
+  github:
+    client_id: !env GITHUB_CLIENT_ID
+    client_secret: !env GITHUB_CLIENT_SECRET
+    callback: "/oauth/github/callback"
+
   aws:
     region: 'ca-central-1'
     version: 'latest'
