@@ -129,7 +129,7 @@ class RepositoryController extends CodeBaseController
         $destination = ROOT_DIR . "/temp/github/" . Cryptography::randomString(32);
         $path = $service->downloadRepositoryZip($owner, $repositoryName, "main", $destination);
         $hash = hash_file('sha256', $path);
-        //new Directory($destination)->remove();
+        new Directory($destination)->remove();
         $transactionHash = $snapshotService->snapshot($repository->id, $wallet->address, $hash);
 
         Flash::success("The snapshot was successfully created for this repository 🎉. You can consult the <a href='https://polygonscan.com/tx/$transactionHash' target='_blank'>transaction</a>. Please allow a couple of minutes for the snapshot to be indexed.");
