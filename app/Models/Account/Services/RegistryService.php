@@ -4,7 +4,6 @@ use kornrunner\Keccak;
 use Models\Account\Entities\Wallet;
 use Pulsar\OAuth\GitHub\Entities\GitHubRepository;
 use SWeb3\Accounts;
-use Tracy\Debugger;
 use Web3\Contract;
 use Web3\Web3;
 use Web3p\EthereumTx\Transaction;
@@ -24,7 +23,6 @@ class RegistryService
         $contract  = new Contract($web3->getProvider(), $abi);
 
         $repoId = $this->repoIdFromGithubId($repository->id);
-        Debugger::barDump("REPO ID (getOwner): " . $repoId);
         $claimed = false;
         $contract->at($contractAddress)->call('isClaimed', $repoId, function($err, $res) use (&$claimed) {
             if ($err !== null) {
@@ -67,10 +65,7 @@ class RegistryService
         // 1) Encode calldata
         $methodName = 'claimRepoFor';
         $data = $contract->getData($methodName, $repoId, $repoMeta, $userWallet);
-        Debugger::barDump("REPO ID (Claim): " . $repoId);
-        Debugger::barDump("REPO Meta (Claim): " . $repoMeta);
-        Debugger::barDump("REPO Wallet (Claim): " . $userWallet
-        );
+
         // Nonce
         $nonce = null;
         $web3->getEth()->getTransactionCount($account2->address, 'pending', function ($err, $result) use (&$nonce) {
@@ -105,7 +100,6 @@ class RegistryService
             if ($err) throw new \RuntimeException("Broadcast error: ".$err->getMessage());
             $txHash = $result;
         });
-        Debugger::barDump($txHash);
         return $txHash;
     }
 
