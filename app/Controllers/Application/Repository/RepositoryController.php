@@ -1,6 +1,7 @@
 <?php namespace Controllers\Application\Repository;
 
 use Models\Account\Services\NftService;
+use Models\Account\Services\RegistryService;
 use Models\Account\Services\WalletService;
 use Pulsar\Account\Passport;
 use Pulsar\OAuth\GitHub\GitHubService;
@@ -45,6 +46,14 @@ class RepositoryController extends CodeBaseController
         } else {
             $repository = $service->getRepository($repositoryName);
         }
+
+        $registryService = new RegistryService();
+        $address = $registryService->getOwner($repository);
+        Debugger::barDump($address);
+        if (is_null($address)) {
+            $registryService->claim($repository);
+        }
+        exit;
 
         if (is_null($repository)) {
             Flash::warning("No repository found for this organization.");
