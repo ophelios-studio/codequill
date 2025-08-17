@@ -13,7 +13,7 @@ locale:
   locale: "en_CA"
 
 mailer:
-  transport: "smtp"
+  transport: !env MAILER_TRANSPORT
   default_from_address: "info@ophelios.com"
   default_from_name: "CodeQuill"
   smtp:
