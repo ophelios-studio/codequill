@@ -111,113 +111,6 @@
         "internalType": "bytes32",
         "name": "repoId",
         "type": "bytes32"
-      }
-    ],
-    "name": "getLastSnapshot",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "bytes32",
-            "name": "commitHash",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "totalHash",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "string",
-            "name": "ipfsCid",
-            "type": "string"
-          },
-          {
-            "internalType": "uint256",
-            "name": "timestamp",
-            "type": "uint256"
-          },
-          {
-            "internalType": "address",
-            "name": "author",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "index",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct CodeQuillSnapshots.Snapshot",
-        "name": "",
-        "type": "tuple"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "repoId",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "uint256",
-        "name": "index",
-        "type": "uint256"
-      }
-    ],
-    "name": "getSnapshot",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "bytes32",
-            "name": "commitHash",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "totalHash",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "string",
-            "name": "ipfsCid",
-            "type": "string"
-          },
-          {
-            "internalType": "uint256",
-            "name": "timestamp",
-            "type": "uint256"
-          },
-          {
-            "internalType": "address",
-            "name": "author",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "index",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct CodeQuillSnapshots.Snapshot",
-        "name": "",
-        "type": "tuple"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "repoId",
-        "type": "bytes32"
       },
       {
         "internalType": "uint256",
@@ -226,6 +119,30 @@
       }
     ],
     "name": "getSnapshotCid",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "ipfsCid",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "repoId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "totalHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getSnapshotCidByHash",
     "outputs": [
       {
         "internalType": "string",
@@ -286,6 +203,45 @@
         "internalType": "bytes32",
         "name": "repoId",
         "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "totalHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getSnapshotMetaByHash",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "author",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "index",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "commitHash",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "repoId",
+        "type": "bytes32"
       }
     ],
     "name": "getSnapshotsCount",
@@ -294,6 +250,30 @@
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "repoId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "totalHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "hasSnapshot",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -407,6 +387,30 @@
     "name": "snapRepoFor",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "name": "snapshotIndexByHash",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
