@@ -1,0 +1,39 @@
+{layout ../layouts/main.latte}
+
+{block content}
+    <div class="page page-center">
+        <div class="container container-normal py-4">
+            <div class="row align-items-center g-4">
+                <div class="col-lg">
+                    <div class="container-tight">
+                        <div class="text-center mb-4">
+                            <img src="/assets/images/logo-black.png" alt="" style="width: 150px;" />
+                        </div>
+                        <form class="card card-md" action="/mfa" method="post" autocomplete="off" novalidate>
+                            <div class="card-body">
+                                <h2 class="card-title card-title-lg text-center mb-4">Authenticate Your Account</h2>
+                                {include "zf-flash"}
+                                <p class="my-4 text-center">Please confirm your account by entering the authorization code identified by <strong>CODEX</strong> in your OTP provider application.</p>
+                                {include "zf-input-pincode", "code[]"}
+                                {include "zf-field-checkbox", "Dont't ask for codes again on this device", "grace"}
+                                <div class="form-footer">
+                                    <div class="btn-list flex-nowrap">
+                                        <a href="/" class="btn w-100"> Cancel </a>
+                                        <button type="submit" class="btn btn-primary w-100">Verify</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        <div class="text-center text-secondary mt-3">If you don't have access to your code, you may proceed by providing one of your <a href="#">recovery code <span class="badge bg-gray-600">Coming soon</span></a>.</div>
+                    </div>
+                </div>
+                <div class="col-lg d-none d-lg-block">
+                    {include "zf-undraw", "confirmation", [
+                        height: 300,
+                        color: "var(--tblr-primary)"
+                    ]}
+                </div>
+            </div>
+        </div>
+    </div>
+{/block}

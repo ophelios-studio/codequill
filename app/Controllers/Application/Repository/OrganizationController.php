@@ -3,6 +3,7 @@
 use Pulsar\Account\Passport;
 use Pulsar\OAuth\GitHub\GitHubService;
 use Tracy\Debugger;
+use Zephyrus\Application\Flash;
 use Zephyrus\Network\Response;
 use Zephyrus\Network\Router\Get;
 
@@ -12,6 +13,10 @@ class OrganizationController extends CodeBaseController
     public function index(): Response
     {
         $token = Passport::getUser()->authentication->oauth_access_token;
+        if (empty($token)) {
+            Flash::error("You must have a GitHub account connected to your account to access this page.");
+            return $this->redirect("/app/profile");
+        }
         $service = new GitHubService($token);
         $organizations = $service->getUserOrganizations();
         foreach ($organizations as &$organization) {
