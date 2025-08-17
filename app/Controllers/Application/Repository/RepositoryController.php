@@ -2,6 +2,7 @@
 
 use Models\Account\Services\NftService;
 use Models\Account\Services\RegistryService;
+use Models\Account\Services\SnapshotService;
 use Models\Account\Services\WalletService;
 use Pulsar\Account\Passport;
 use Pulsar\OAuth\GitHub\GitHubService;
@@ -85,6 +86,38 @@ class RepositoryController extends CodeBaseController
         ]);
     }
 
+    #[Post("/{org}/repositories/{repository}/snapshot")]
+    public function snapshot(string $organizationLogin, string $repositoryName): Response
+    {
+        $wallet = new WalletService()->getConnectedWallet(Passport::getUserId());
+        if (is_null($wallet)) {
+            Flash::warning("No wallet connected.");
+            return $this->redirect($this->getRouteRoot());
+        }
+
+        $token = Passport::getUser()->authentication->oauth_access_token;
+        $service = new GitHubService($token);
+
+        if ($organizationLogin != "me") {
+            $repository = $service->getRepository($organizationLogin . "/" . $repositoryName);
+        } else {
+            $repository = $service->getRepository($repositoryName);
+        }
+
+        if (is_null($repository)) {
+            Flash::warning("No repository found for this organization.");
+            return $this->redirect($this->getRouteRoot());
+        }
+
+        $snapshotService = new SnapshotService();
+        $file = ROOT_DIR . "/config.yml";
+        $hash = hash_file('sha256', $file);
+        $transactionHash = $snapshotService->snapshot($repository->id, $wallet->address, $hash);
+
+        Flash::success("The snapshot was successfully created for this repository 🎉. You can consult the <a href='https://polygonscan.com/tx/$transactionHash' target='_blank'>transaction</a>");
+        return $this->redirect("/app/codebase/$organizationLogin/repositories/$repositoryName");
+    }
+
     #[Post("/{org}/repositories/{repository}/claim")]
     public function claim(string $organizationLogin, string $repositoryName): Response
     {
@@ -119,7 +152,7 @@ class RepositoryController extends CodeBaseController
         Debugger::barDump("CLAIM HASH: " . $hash);
         $hash = new NftService($wallet)->generate($repository);
         Debugger::barDump("NFT HASH: " . $hash);
-        Flash::success("Your NFT was successfully minted 🎉! You can consult the <a href='https://polygonscan.com/tx/$hash' target='_blank'>transaction</a> ($hash) and find it on <a href='https://opensea.io/assets/ethereum/$wallet->address/'>OpenSea</a>.");
+        Flash::success("Your NFT was successfully minted 🎉! You can consult the <a href='https://polygonscan.com/tx/$hash' target='_blank'>transaction hash</a> and find it on <a href='https://opensea.io/assets/ethereum/$wallet->address/'>OpenSea</a>.");
         Session::set("confetti", true);
         return $this->redirect("/app/codebase/$organizationLogin/repositories/$repositoryName");
     }
