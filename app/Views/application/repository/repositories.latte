@@ -27,25 +27,29 @@
                         </div>
                         <div class="col-auto d-flex justify-items-middle">
                             <i class="icon bi bi-envelope me-1"></i>
-                            <a href="mailat: {$organization->email}" class="text-reset">{$organization->email}</a>
+                            <a href="mailto: {$organization->email}" class="text-reset">{$organization->email}</a>
                         </div>
                         <div class="col-auto d-flex justify-items-middle">
                             <i class="icon bi bi-people me-1"></i>
                             <span class="text-reset">{$organization->followers} follower(s)</span>
                         </div>
-                        <div class="col-auto text-success d-flex justify-items-middle">
+                        <div n:if="$organization->is_verified" class="col-auto text-success d-flex justify-items-middle">
                             <i class="icon bi bi-patch-check me-1"></i>
-                            Verified
+                            <b>Verified</b>
+                        </div>
+                        <div n:else class="col-auto text-warning d-flex justify-items-middle">
+                            <i class="icon bi bi-patch-minus me-1"></i>
+                            <b>Not verified</b>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-auto d-none d-md-flex">
-                <a href="#" class="btn btn-primary">
-                    <i class="icon bi bi-arrow-clockwise"></i>
-                    Refresh
-                </a>
-            </div>
+{*            <div class="col-auto d-none d-md-flex">*}
+{*                <a href="#" class="btn btn-primary">*}
+{*                    <i class="icon bi bi-arrow-clockwise"></i>*}
+{*                    Refresh*}
+{*                </a>*}
+{*            </div>*}
         </div>
     </div>
     </div>
