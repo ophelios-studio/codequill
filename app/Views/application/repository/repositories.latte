@@ -67,7 +67,7 @@
                         <div class="list-group list-group-flush list-group-hoverable">
                             {foreach $repositories as $repository}
                                 {varType Pulsar\OAuth\GitHub\Entities\GitHubRepository $repository}
-                                {var string $class = ($repository->owner['login'] != $github_user->login) ? "list-group-item disabled" : "list-group-item"}
+                                {var string $class = ($repository->owner['login'] != $github_user->login && $repository->owner['login'] != $organization?->login) ? "list-group-item disabled" : "list-group-item"}
                                 <div class="{$class}">
                                     <div class="row align-items-center">
                                         <div class="col-auto">
