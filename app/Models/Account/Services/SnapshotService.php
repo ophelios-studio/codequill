@@ -1,7 +1,9 @@
 <?php namespace Models\Account\Services;
 
 use kornrunner\Keccak;
+use phpseclib\Math\BigInteger;
 use SWeb3\Accounts;
+use Tracy\Debugger;
 use Web3\Contract;
 use Web3\Web3;
 use Web3p\EthereumTx\Transaction;
@@ -9,44 +11,84 @@ use Zephyrus\Core\Configuration;
 
 class SnapshotService
 {
-    public const string CONTRACT_ADDRESS = '0x4Ba01aCD794E250be190fa3783A2475ABd4962f6';
+    public const string CONTRACT_ADDRESS = '0xEAa4F3B10c8ee2C15F0184A181fd298aD5B735df';
+
+    private function pick(array $res, string $name, int $fallbackIndex) {
+        return $res[$name] ?? ($res[$fallbackIndex] ?? null);
+    }
 
     public function getSnapshots(string $gitHubRepositoryId): array
     {
         $repoIdHex = $this->repoIdFromGithubId($gitHubRepositoryId);
-        $config = Configuration::read('services')['infura'];
-        $rpc   = $config['polygon_url'];
-        $abi   = file_get_contents(ROOT_DIR . '/web3/snapshot_abi.json');
-        $web3      = new Web3($rpc);
-        $contract  = new Contract($web3->getProvider(), $abi);
 
+        $rpc  = Configuration::read('services')['infura']['polygon_url']; // or your chain RPC
+        $abi  = file_get_contents(ROOT_DIR . '/web3/snapshot_abi.json');
+
+        $web3 = new Web3($rpc);
+        $c    = new Contract($web3->getProvider(), $abi);
+        $c->at(self::CONTRACT_ADDRESS);
+
+        // 1) count
         $count = 0;
-        $contract->at(self::CONTRACT_ADDRESS)->call('getSnapshotsCount', $repoIdHex, function($err,$res) use (&$count) {
+        $c->call('getSnapshotsCount', $repoIdHex, function($err, $res) use (&$count) {
             if ($err) throw $err;
-            // web3p returns hex for uint sometimes; handle both
             $v = $res[0];
-            $count = is_string($v) ? hexdec($v) : (int)$v;
+            if ($v instanceof \phpseclib\Math\BigInteger) {
+                $count = (int)$v->toString();
+            } elseif (is_string($v) && str_starts_with(strtolower($v),'0x')) {
+                $count = hexdec($v);
+            } else {
+                $count = (int)$v;
+            }
         });
+        Debugger::barDump($count);
 
         $out = [];
         for ($i = 0; $i < $count; $i++) {
             $snap = null;
-            $contract->at(self::CONTRACT_ADDRESS)->call('getSnapshot', $repoIdHex, $i, function($err,$res) use (&$snap) {
+
+            // IMPORTANT: pass uint256 index as BigInteger (or '0x...' string), not a PHP int
+            $indexArg = new BigInteger((string)$i);
+
+            // 2a) fixed-size fields
+            $fixed = null;
+            $c->call('getSnapshotFixed', $repoIdHex, $indexArg, function($err, $res) use (&$fixed) {
                 if ($err) throw $err;
-                // tuple: [commitHash, totalHash, ipfsCid, timestamp, author, index]
-                $snap = [
-                    'commitHash' => (string)$res[0],
-                    'totalHash'  => (string)$res[1],
-                    'ipfsCid'    => (string)$res[2],
-                    'timestamp'  => is_string($res[3]) ? hexdec($res[3]) : (int)$res[3],
-                    'author'     => (string)$res[4],
-                    'index'      => is_string($res[5]) ? hexdec($res[5]) : (int)$res[5],
+
+                // web3p may return an associative array with named keys
+                $commitHash = (string) ($this->pick($res, 'commitHash', 0) ?? '');
+                $totalHash  = (string) ($this->pick($res, 'totalHash',  1) ?? '');
+                $tsRaw      =           ($this->pick($res, 'timestamp',  2) ?? 0);
+                $author     = (string) ($this->pick($res, 'author',     3) ?? '');
+                $idxRaw     =           ($this->pick($res, 'idx',        4) ?? 0);
+
+                $timestamp  = $this->normalizeBigInt($tsRaw);
+                $index      = $this->normalizeBigInt($idxRaw);
+
+                $fixed = (object) [
+                    'commitHash' => $commitHash,     // e.g. "0x..." or "0" if you stored 0x0
+                    'totalHash'  => $totalHash,      // "0x..."
+                    'timestamp'  => $timestamp,      // int
+                    'author'     => $author,         // "0x..."
+                    'index'      => $index,          // int
                 ];
             });
-            $out[] = $snap;
+
+            // 2b) string (CID)
+//            $cid = '';
+//            $c->call('getSnapshotCid', $repoIdHex, $indexArg, function($err, $res) use (&$cid) {
+//                if ($err) throw $err;
+//                Debugger::barDump($res);
+//                $cid = (string)$res[0];
+//            });
+
+            //$snap = $fixed + ['ipfsCid' => $cid];
+            $out[] = $fixed;
         }
+
         return $out;
     }
+
 
     public function snapshot(string $gitHubRepositoryId,
             string $authorWallet,       // wallet that owns the repo in Registry
@@ -131,5 +173,12 @@ class SnapshotService
     {
         $hash = Keccak::hash($githubNumericId, 256); // 64 hex chars
         return $this->toBytes32($hash);
+    }
+
+    private function normalizeBigInt(mixed $v): string
+    {
+        if ($v instanceof BigInteger) return $v->toString(); // decimal string
+        if (is_string($v) && str_starts_with(strtolower($v), '0x')) return (string)hexdec($v);
+        return (string)$v;
     }
 }

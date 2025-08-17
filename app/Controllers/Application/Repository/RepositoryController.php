@@ -78,11 +78,21 @@ class RepositoryController extends CodeBaseController
         if ($confetti) {
             Session::remove("confetti");
         }
+
+        $snapshots = [];
+        $wallet = new WalletService()->getConnectedWallet(Passport::getUserId());
+        if ($ownerAddress == $wallet->address) {
+            $snapshotService = new SnapshotService();
+            $snapshots = $snapshotService->getSnapshots($repository->id);
+            Debugger::barDump($snapshots);
+        }
+
         return $this->render("application/repository/read", [
             'repository' => $repository,
             'organization' => (object) $repository->getRawData()->organization,
             'confetti' => $confetti,
             'owner_address' => $ownerAddress,
+            'snapshots' => $snapshots
         ]);
     }
 
