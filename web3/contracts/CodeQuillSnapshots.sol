@@ -11,18 +11,17 @@ contract CodeQuillSnapshots is Ownable {
     ICodeQuillRegistry public immutable registry;
 
     struct Snapshot {
-        bytes32 commitHash;  // optional
-        bytes32 totalHash;   // required
-        string  ipfsCid;     // optional
-        uint256 timestamp;   // block timestamp
-        address author;      // repo owner at submission
-        uint256 index;       // 0..count-1
+        bytes32 commitHash;
+        bytes32 totalHash;
+        string  ipfsCid;
+        uint256 timestamp;
+        address author;
+        uint256 index;
     }
 
-    // latest snapshot per repo (handy shortcut)
     mapping(bytes32 => Snapshot) public lastSnapshotOf;
-    // full history per repo
     mapping(bytes32 => Snapshot[]) private snapshotsOf;
+    mapping(bytes32 => mapping(bytes32 => uint256)) public snapshotIndexByHash;
 
     event SnapshotSubmitted(
         bytes32 indexed repoId,
@@ -44,7 +43,6 @@ contract CodeQuillSnapshots is Ownable {
         registry = ICodeQuillRegistry(registryAddress);
     }
 
-    /// Relayer submit: backend pays gas, sets true author (repo owner)
     function snapRepoFor(
         bytes32 repoId,
         bytes32 commitHash,
@@ -56,7 +54,7 @@ contract CodeQuillSnapshots is Ownable {
     onlyOwner
     onlyRepoOwner(repoId, author)
     {
-        // optional de-dupe vs last snapshot:
+        // optional duplicate guard vs last snapshot:
         require(lastSnapshotOf[repoId].totalHash != totalHash, "duplicate totalHash");
 
         uint256 idx = snapshotsOf[repoId].length;
@@ -73,30 +71,58 @@ contract CodeQuillSnapshots is Ownable {
         snapshotsOf[repoId].push(s);
         lastSnapshotOf[repoId] = s;
 
+        // NEW: index lookup
+        snapshotIndexByHash[repoId][totalHash] = idx + 1;
+
         emit SnapshotSubmitted(
-            repoId,
-            idx,
-            author,
-            commitHash,
-            totalHash,
-            ipfsCid,
-            block.timestamp
+            repoId, idx, author, commitHash, totalHash, ipfsCid, block.timestamp
         );
     }
 
-    /// Latest snapshot (already public via lastSnapshotOf, but kept for symmetry)
-    function getLastSnapshot(bytes32 repoId) external view returns (Snapshot memory) {
-        return lastSnapshotOf[repoId];
-    }
-
-    /// Number of snapshots recorded for a repo
     function getSnapshotsCount(bytes32 repoId) external view returns (uint256) {
         return snapshotsOf[repoId].length;
     }
 
-    /// Snapshot at index (0..count-1). Use this to page through history.
-    function getSnapshot(bytes32 repoId, uint256 index) external view returns (Snapshot memory) {
-        require(index < snapshotsOf[repoId].length, "index OOB");
-        return snapshotsOf[repoId][index];
+    function getSnapshotFixed(bytes32 repoId, uint256 index)
+    external
+    view
+    returns (bytes32 commitHash, bytes32 totalHash, uint256 timestamp, address author, uint256 idx)
+    {
+        Snapshot storage s = snapshotsOf[repoId][index];
+        return (s.commitHash, s.totalHash, s.timestamp, s.author, s.index);
+    }
+
+    function getSnapshotCid(bytes32 repoId, uint256 index)
+    external
+    view
+    returns (string memory ipfsCid)
+    {
+        return snapshotsOf[repoId][index].ipfsCid;
+    }
+
+    function hasSnapshot(bytes32 repoId, bytes32 totalHash) external view returns (bool) {
+        return snapshotIndexByHash[repoId][totalHash] != 0;
+    }
+
+    // static-only metadata (no string to keep web3p happy)
+    function getSnapshotMetaByHash(bytes32 repoId, bytes32 totalHash)
+    external
+    view
+    returns (uint256 timestamp, address author, uint256 index, bytes32 commitHash)
+    {
+        uint256 idx1 = snapshotIndexByHash[repoId][totalHash];
+        require(idx1 != 0, "not found");
+        Snapshot storage s = snapshotsOf[repoId][idx1 - 1];
+        return (s.timestamp, s.author, s.index, s.commitHash);
+    }
+
+    function getSnapshotCidByHash(bytes32 repoId, bytes32 totalHash)
+    external
+    view
+    returns (string memory ipfsCid)
+    {
+        uint256 idx1 = snapshotIndexByHash[repoId][totalHash];
+        require(idx1 != 0, "not found");
+        return snapshotsOf[repoId][idx1 - 1].ipfsCid;
     }
 }

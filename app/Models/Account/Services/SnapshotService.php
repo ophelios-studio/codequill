@@ -11,10 +11,85 @@ use Zephyrus\Core\Configuration;
 
 class SnapshotService
 {
-    public const string CONTRACT_ADDRESS = '0xEAa4F3B10c8ee2C15F0184A181fd298aD5B735df';
+    public const string CONTRACT_ADDRESS = '0xd0FFF00Bef5C0f6864Da3601250a3c5de66EA327';
 
     private function pick(array $res, string $name, int $fallbackIndex) {
         return $res[$name] ?? ($res[$fallbackIndex] ?? null);
+    }
+
+    public function hasSnapshotByHash(string $gitHubRepositoryId, string $totalHashHex): bool
+    {
+        $repoIdHex   = $this->repoIdFromGithubId($gitHubRepositoryId);
+        $totalHash32 = $this->toBytes32($totalHashHex);
+
+        $rpc = Configuration::read('services')['infura']['polygon_url']; // or your chain
+        $abi = file_get_contents(ROOT_DIR . '/web3/snapshot_abi.json');
+
+        $web3 = new Web3($rpc);
+        $c    = new Contract($web3->getProvider(), $abi);
+
+        $exists = false;
+        $c->at(self::CONTRACT_ADDRESS)->call('hasSnapshot', $repoIdHex, $totalHash32, function($err, $res) use (&$exists) {
+            if ($err) throw $err;
+            // returns [bool]
+            $exists = (bool)$res[0];
+        });
+
+        return $exists;
+    }
+
+    public function getSnapshotMetaByHash(string $gitHubRepositoryId, string $totalHashHex): array
+    {
+        $repoIdHex   = $this->repoIdFromGithubId($gitHubRepositoryId);
+        $totalHash32 = $this->toBytes32($totalHashHex);
+
+        $rpc = Configuration::read('services')['infura']['polygon_url'];
+        $abi = file_get_contents(ROOT_DIR . '/web3/snapshot_abi.json');
+
+        $web3 = new Web3($rpc);
+        $c    = new Contract($web3->getProvider(), $abi);
+
+        $out = [];
+        $c->at(self::CONTRACT_ADDRESS)->call('getSnapshotMetaByHash', $repoIdHex, $totalHash32, function($err,$res) use (&$out) {
+            if ($err) throw $err;
+
+            // returns: [timestamp, author, index, commitHash]
+            $timestamp = $this->normalizeBigInt($res[0]);
+            $author    = (string)$res[1];
+
+            // index may be BigInteger
+            $index     = $this->normalizeBigInt($res[2]);
+            $commit    = (string)$res[3];
+
+            $out = [
+                'timestamp'  => $timestamp,
+                'author'     => $author,
+                'index'      => $index,
+                'commitHash' => $commit,
+            ];
+        });
+
+        return $out; // throws if "not found"
+    }
+
+    public function getSnapshotCidByHash(string $gitHubRepositoryId, string $totalHashHex): string
+    {
+        $repoIdHex   = $this->repoIdFromGithubId($gitHubRepositoryId);
+        $totalHash32 = $this->toBytes32($totalHashHex);
+
+        $rpc = Configuration::read('services')['infura']['polygon_url'];
+        $abi = file_get_contents(ROOT_DIR . '/web3/snapshot_abi.json');
+
+        $web3 = new Web3($rpc);
+        $c    = new Contract($web3->getProvider(), $abi);
+
+        $cid = '';
+        $c->at(self::CONTRACT_ADDRESS)->call('getSnapshotCidByHash', $repoIdHex, $totalHash32, function($err,$res) use (&$cid) {
+            if ($err) throw $err;
+            $cid = (string)$res[0];
+        });
+
+        return $cid;
     }
 
     public function getSnapshots(string $gitHubRepositoryId): array

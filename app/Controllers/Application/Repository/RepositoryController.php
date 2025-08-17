@@ -125,7 +125,6 @@ class RepositoryController extends CodeBaseController
 
         $snapshotService = new SnapshotService();
 
-
         $destination = ROOT_DIR . "/temp/github/" . Cryptography::randomString(32);
         $path = $service->downloadRepositoryZip($owner, $repositoryName, "main", $destination);
         $hash = hash_file('sha256', $path);
