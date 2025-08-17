@@ -1,0 +1,36 @@
+{layout ../../layouts/main.latte}
+
+{block content}
+    <div class="page-wrapper">
+        <div class="page-body">
+            <div class="container-xl justify-content-middle">
+                <div class="row row-cards">
+                    <div class="col-8 mx-auto">
+                        <h1 class="text-center my-5">Verify your code</h1>
+                        <div class="alert alert-warning">
+                            <div>
+                                👨‍🍳 <strong>Warning!</strong> This feature is not yet implemented. More cooking is needed to make it work. Come back in the future to verify your code globally without the need to specify a repository.
+                            </div>
+                        </div>
+                        {include "zf-flash"}
+                        <p>If you want to verify a repository snapshot you can download a zip file of your project and hash the archive. Paste the resulting hash below and see if there is a hash matching.</p>
+                        <label for="" class="form-label">MacOS</label>
+                        <pre><code>shasum -a 256 ~/Downloads/software.zip</code></pre>
+                        <label for="" class="form-label">Linux</label>
+                        <pre><code>sha256sum ~/Downloads/software.zip</code></pre>
+                        <label for="" class="form-label">Windows</label>
+                        <pre><code>certutil -hashfile C:\Users\user1\Downloads\software.zip SHA256</code></pre>
+                <div class="card">
+        <form class="card-body" action="/app/verifications" method="post">
+            {include "zf-field-text", "Hash", "hash", [required: true]}
+            <div class="mt-2">
+                <button type="submit" disabled class="btn btn-primary btn-3 w-100">Search blockchain</button>
+            </div>
+        </form>
+    </div>
+                    </div>
+                </div>
+                    </div>
+        </div>
+    </div>
+{/block}
