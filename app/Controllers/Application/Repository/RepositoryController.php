@@ -48,15 +48,7 @@ class RepositoryController extends CodeBaseController
         }
 
         $registryService = new RegistryService();
-        $address = $registryService->getOwner($repository);
-        Debugger::barDump($address);
-        if (is_null($address)) {
-            $hash = $registryService->claim($repository, new WalletService()->getConnectedWallet(Passport::getUserId()));
-            Debugger::barDump($hash);
-            $address = $registryService->getOwner($repository);
-            Debugger::barDump($address);
-        }
-        exit;
+        $ownerAddress = $registryService->getOwner($repository);
 
         if (is_null($repository)) {
             Flash::warning("No repository found for this organization.");
@@ -70,7 +62,8 @@ class RepositoryController extends CodeBaseController
         return $this->render("application/repository/read", [
             'repository' => $repository,
             'organization' => (object) $repository->getRawData()->organization,
-            'confetti' => $confetti
+            'confetti' => $confetti,
+            'owner_address' => $ownerAddress,
         ]);
     }
 
@@ -97,7 +90,17 @@ class RepositoryController extends CodeBaseController
             return $this->redirect($this->getRouteRoot());
         }
 
+        $registryService = new RegistryService();
+        $ownerAddress = $registryService->getOwner($repository);
+        if ($ownerAddress) {
+            Flash::warning("This repository is already claimed.");
+            return $this->redirect("/app/codebase/$organizationLogin/repositories/$repositoryName");
+        }
+
+        $hash = $registryService->claim($repository, $wallet);
+        Debugger::barDump("CLAIM HASH: " . $hash);;
         $hash = new NftService($wallet->address)->generate($repository->full_name, $githubUser->login);
+        Debugger::barDump("NFT HASH: " . $hash);;
         Flash::success("Your NFT was successfully minted 🎉! You can consult the <a href='https://polygonscan.com/tx/$hash' target='_blank'>transaction</a> ($hash) and find it on <a href='https://opensea.io/assets/ethereum/$wallet->address/'>OpenSea</a>.");
         Session::set("confetti", true);
         return $this->redirect("/app/codebase/$organizationLogin/repositories/$repositoryName");
