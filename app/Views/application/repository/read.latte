@@ -5,6 +5,7 @@
 {varType ?Models\Account\Entities\Wallet $wallet}
 {varType bool $confetti}
 {varType ?string $owner_address}
+{var array $snapshots = []}
 
 {block content}
     <div class="page-header">
@@ -24,6 +25,33 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-auto ms-auto">
+                    <div class="btn-list">
+                        <a href="#" class="btn btn-primary d-none d-sm-inline-block">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                                 height="24" viewBox="0 0 24 24" stroke-width="2"
+                                 stroke="currentColor" fill="none" stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <line x1="12" y1="5" x2="12" y2="19" />
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                            </svg>
+                            Create snapshot
+                        </a>
+                        <a href="#" class="btn btn-primary d-sm-none btn-icon"
+                           data-bs-toggle="modal" data-bs-target="#modal-report"
+                           aria-label="Create snapshot">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                                 height="24" viewBox="0 0 24 24" stroke-width="2"
+                                 stroke="currentColor" fill="none" stroke-linecap="round"
+                                 stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <line x1="12" y1="5" x2="12" y2="19" />
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -35,7 +63,52 @@
                         <h1>Authorship is yours 👏</h1>
                         {include "zf-flash"}
                         <p>We are sure you invested a lot of time, effort and energy to cook your code 👨‍🍳. You should proudly display your incorruptible ownership of this code with our badge.</p>
-                        <img src="https://img.shields.io/badge/Code_Quill-Authored_By_dadajuice.booe.eth-f63f42?style=for-the-badge" alt="" />
+                        <img src="https://img.shields.io/badge/Code_Quill-Authored_By_{$wallet->getName()}-f63f42?style=for-the-badge" alt="" />
+                        <pre class="mt-3"><code>&lt;img src="https://img.shields.io/badge/Code_Quill-Authored_By_{$wallet->getName()}-f63f42?style=for-the-badge" alt="" /&gt;</code></pre>
+                        <pre class="mt-3"><code>![Static Badge](https://img.shields.io/badge/Code_Quill-Authored_By_{$wallet->getName()}-f63f42?style=for-the-badge)</code></pre>
+
+                        <h2 class="mt-5">Snapshots</h2>
+                        <p>Since you authored this repository, you can claim code snapshot to authenticate that you owned your codebase at a specific moment in time. If you enabled signing delegation, you will be able to use the GitHub Action script to automate snapshot in your CI/CD workflow.</p>
+                        <div n:if="$snapshots" class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Code Snapshots</h3>
+                            </div>
+                            <div class="list-group list-group-flush list-group-hoverable">
+                                <div class="list-group-item">
+                                    <div class="row align-items-center">
+                                        <div class="col-auto"><span class="badge bg-red"></span></div>
+                                        <div class="col-auto">
+                                            <a href="#">
+                                                <span class="avatar avatar-1" style="background-image: url(./static/avatars/000m.jpg)"> </span>
+                                            </a>
+                                        </div>
+                                        <div class="col text-truncate">
+                                            <a href="#" class="text-reset d-block">Paweł Kuna</a>
+                                            <div class="d-block text-secondary text-truncate mt-n1">Change deprecated html tags to text decoration classes (#29604)</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="list-group-item">
+                                    <div class="row align-items-center">
+                                        <div class="col-auto"><span class="badge bg-yellow"></span></div>
+                                        <div class="col-auto">
+                                            <a href="#">
+                                                <span class="avatar avatar-1" style="background-image: url(./static/avatars/052f.jpg)"> </span>
+                                            </a>
+                                        </div>
+                                        <div class="col text-truncate">
+                                            <a href="#" class="text-reset d-block">Jeffie Lewzey</a>
+                                            <div class="d-block text-secondary text-truncate mt-n1">justify-content:between ⇒ justify-content:space-between (#29734)</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div n:else class="text-center mt-5">
+                            {include "zf-undraw", "empty_box"}
+                            <p class="text-muted mt-2">You currently have no snapshot available for this repository.</p>
+                        </div>
+
                     {else}
                         <h1>Authorship ✍️ has been claimed by {$owner_address}</h1>
                         {include "zf-flash"}
