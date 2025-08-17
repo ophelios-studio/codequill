@@ -9,7 +9,7 @@ primary_region = 'yyz'
 
 [env]
   APP_CACHE_UPDATE = 'always'
-  APP_DEBUG = '1'
+  APP_DEBUG = '0'
   APP_ENV = 'dev'
 
 [http_service]
@@ -45,6 +45,6 @@ primary_region = 'yyz'
 #    protocol = 'http'
 
 [[vm]]
-  memory = '1gb'
-  cpu_kind = 'shared'
-  cpus = 1
+    memory = '2gb'
+    cpu_kind = 'shared'
+    cpus = 4
