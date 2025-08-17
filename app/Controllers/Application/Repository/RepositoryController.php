@@ -51,7 +51,10 @@ class RepositoryController extends CodeBaseController
         $address = $registryService->getOwner($repository);
         Debugger::barDump($address);
         if (is_null($address)) {
-            $registryService->claim($repository);
+            $hash = $registryService->claim($repository, new WalletService()->getConnectedWallet(Passport::getUserId()));
+            Debugger::barDump($hash);
+            $address = $registryService->getOwner($repository);
+            Debugger::barDump($address);
         }
         exit;
 
