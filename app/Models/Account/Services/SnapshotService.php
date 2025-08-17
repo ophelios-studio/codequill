@@ -52,14 +52,14 @@ class SnapshotService
         $out = [];
         $c->at(self::CONTRACT_ADDRESS)->call('getSnapshotMetaByHash', $repoIdHex, $totalHash32, function($err,$res) use (&$out) {
             if ($err) throw $err;
-
+            Debugger::barDump($res);
             // returns: [timestamp, author, index, commitHash]
-            $timestamp = $this->normalizeBigInt($res[0]);
-            $author    = (string)$res[1];
+            $timestamp = $this->normalizeBigInt($res['timestamp']);
+            $author    = (string)$res['author'];
 
             // index may be BigInteger
-            $index     = $this->normalizeBigInt($res[2]);
-            $commit    = (string)$res[3];
+            $index     = $this->normalizeBigInt($res['index']);
+            $commit    = (string)$res['commitHash'];
 
             $out = [
                 'timestamp'  => $timestamp,

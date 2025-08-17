@@ -173,4 +173,39 @@ class RepositoryController extends CodeBaseController
         Session::set("confetti", true);
         return $this->redirect("/app/codebase/$organizationLogin/repositories/$repositoryName");
     }
+
+    #[Post("/{org}/repositories/{repository}/verify")]
+    public function verify(string $organizationLogin, string $repositoryName): Response
+    {
+        $wallet = new WalletService()->getConnectedWallet(Passport::getUserId());
+        if (is_null($wallet)) {
+            Flash::warning("No wallet connected.");
+            return $this->redirect($this->getRouteRoot());
+        }
+
+        $token = Passport::getUser()->authentication->oauth_access_token;
+        $service = new GitHubService($token);
+
+        if ($organizationLogin != "me") {
+            $repository = $service->getRepository($organizationLogin . "/" . $repositoryName);
+        } else {
+            $repository = $service->getRepository($repositoryName);
+        }
+
+        $hash = $this->request->getParameter("hash");
+        if (empty($hash)) {
+            Flash::error("The <b>hash</b> must not be empty.");
+            return $this->redirect($this->getRouteRoot());
+        }
+
+        $service = new SnapshotService();
+        if ($service->hasSnapshotByHash($repository->id, $hash)) {
+            $meta = $service->getSnapshotMetaByHash($repository->id, $hash);  // timestamp, author, index, commitHash
+            Debugger::barDump($meta);
+            Flash::success("A snapshot with the specified hash was found authored by <b>" . $meta['author'] . "</b> at " . format('datetime', date('Y-m-d H:i:s', $meta['timestamp'])) . ".");
+        } else {
+            Flash::success("No snapshot with the specified hash was found.");
+        }
+        return $this->redirect("/app/codebase/$organizationLogin/repositories/$repositoryName");
+    }
 }

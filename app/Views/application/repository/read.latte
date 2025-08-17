@@ -69,6 +69,23 @@
                         <pre class="mt-3"><code>&lt;img src="https://img.shields.io/badge/Code_Quill-Authored_By_{$wallet->getName()}-f63f42?style=for-the-badge" alt="" /&gt;</code></pre>
                         <pre class="mt-3"><code>![Static Badge](https://img.shields.io/badge/Code_Quill-Authored_By_{$wallet->getName()}-f63f42?style=for-the-badge)</code></pre>
 
+                        <h2 class="mt-5">Verify code</h2>
+                        <p>If you want to verify a repository snapshot you can download a zip file of your project and hash the archive. Paste the resulting hash below and see if there is a hash matching.</p>
+                        <label for="" class="form-label">MacOS</label>
+                        <pre><code>shasum -a 256 ~/Downloads/software.zip</code></pre>
+                        <label for="" class="form-label">Linux</label>
+                        <pre><code>sha256sum ~/Downloads/software.zip</code></pre>
+                        <label for="" class="form-label">Windows</label>
+                        <pre><code>certutil -hashfile C:\Users\user1\Downloads\software.zip SHA256</code></pre>
+                        <div class="card">
+                            <form class="card-body" action="/app/codebase/{$organization->login}/repositories/{$repository->name}/verify" method="post">
+                                {include "zf-field-text", "Hash", "hash", [required: true]}
+                                <div class="mt-2">
+                                    <button type="submit" class="btn btn-primary btn-3 w-100">Search blockchain</button>
+                                </div>
+                            </form>
+                        </div>
+
                         <h2 class="mt-5">Snapshots</h2>
                         <p>Since you authored this repository, you can claim code snapshot to authenticate that you owned your codebase at a specific moment in time. If you enabled signing delegation, you will be able to use the GitHub Action script to automate snapshot in your CI/CD workflow.</p>
                         <div n:if="!empty($snapshots)" class="card">
