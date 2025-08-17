@@ -33,14 +33,16 @@
                             <i class="icon bi bi-people me-1"></i>
                             <span class="text-reset">{$organization->followers} follower(s)</span>
                         </div>
-                        <div n:if="$organization->is_verified" class="col-auto text-success d-flex justify-items-middle">
-                            <i class="icon bi bi-patch-check me-1"></i>
-                            <b>Verified</b>
-                        </div>
-                        <div n:else class="col-auto text-warning d-flex justify-items-middle">
-                            <i class="icon bi bi-patch-minus me-1"></i>
-                            <b>Not verified</b>
-                        </div>
+                        {if isset($organization->is_verified)}
+                            <div n:if="$organization->is_verified" class="col-auto text-success d-flex justify-items-middle">
+                                <i class="icon bi bi-patch-check me-1"></i>
+                                <b>Verified</b>
+                            </div>
+                            <div n:else class="col-auto text-warning d-flex justify-items-middle">
+                                <i class="icon bi bi-patch-minus me-1"></i>
+                                <b>Not verified</b>
+                            </div>
+                        {/if}
                     </div>
                 </div>
             </div>
@@ -57,6 +59,7 @@
         <div class="page-body">
             <div class="container-xl justify-content-middle">
                 <div class="col-12">
+                    {include "zf-flash"}
                     <div class="card">
                         <div class="card-header">
                             <h3 class="card-title">Repositories ({count($repositories)})</h3>
@@ -64,7 +67,8 @@
                         <div class="list-group list-group-flush list-group-hoverable">
                             {foreach $repositories as $repository}
                                 {varType Pulsar\OAuth\GitHub\Entities\GitHubRepository $repository}
-                                <div class="list-group-item">
+                                {var string $class = ($repository->owner['login'] != $github_user->login) ? "list-group-item disabled" : "list-group-item"}
+                                <div class="{$class}">
                                     <div class="row align-items-center">
                                         <div class="col-auto">
                                             <span n:if="in_array($repository->id, $claimed_repo_ids)" class="badge bg-green"></span>

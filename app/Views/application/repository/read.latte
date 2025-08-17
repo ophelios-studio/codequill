@@ -2,17 +2,19 @@
 
 {varType Pulsar\OAuth\GitHub\Entities\GitHubRepository $repository}
 {varType ?\stdClass $organization}
+{varType ?Pulsar\OAuth\GitHub\Entities\GitHubUser $github_user}
 {varType ?Models\Account\Entities\Wallet $wallet}
 {varType bool $confetti}
 {varType ?string $owner_address}
 {varType array $snapshots}
 
 {block content}
+    {do Tracy\Debugger::barDump($organization)}
     <div class="page-header">
         <div class="container-xl">
             <div class="row align-items-center">
                 <div class="col-auto">
-                    <span class="avatar avatar-xl" style="background-image: url('{$organization->avatar_url}')"></span>
+                    <span class="avatar avatar-xl" style="background-image: url('{$organization?->avatar_url ?? $github_user->avatar_url}')"></span>
                 </div>
                 <div class="col">
                     <h2 class="page-title">{$repository->name}</h2>
@@ -20,14 +22,14 @@
                         <div class="row">
                             <div class="col-auto d-flex justify-items-middle">
                                 <i class="icon bi bi-github me-1"></i>
-                                <a href="{$organization->html_url}" target="_blank" class="text-reset">{$organization->login}</a>
+                                <a href="{$organization?->html_url ?? $github_user->html_url}" target="_blank" class="text-reset">{$organization?->login ?? $github_user->login}</a>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-auto ms-auto">
+                <div n:if="$owner_address == $wallet->address" class="col-auto ms-auto">
                     <div class="btn-list">
-                        <form action="/app/codebase/{$organization->login}/repositories/{$repository->name}/snapshot" method="post">
+                        <form action="/app/codebase/{$organization?->login ?? $github_user->login}/repositories/{$repository->name}/snapshot" method="post">
                         <button type="submit" class="btn btn-primary d-none d-sm-inline-block">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
                                  height="24" viewBox="0 0 24 24" stroke-width="2"
@@ -78,7 +80,7 @@
                         <label for="" class="form-label">Windows</label>
                         <pre><code>certutil -hashfile C:\Users\user1\Downloads\software.zip SHA256</code></pre>
                         <div class="card">
-                            <form class="card-body" action="/app/codebase/{$organization->login}/repositories/{$repository->name}/verify" method="post">
+                            <form class="card-body" action="/app/codebase/{$organization->login ?? $github_user->login}/repositories/{$repository->name}/verify" method="post">
                                 {include "zf-field-text", "Hash", "hash", [required: true]}
                                 <div class="mt-2">
                                     <button type="submit" class="btn btn-primary btn-3 w-100">Search blockchain</button>
@@ -149,7 +151,7 @@
                                             Everything is ready for you to take ownership of your code on the Blockchain. This process will mint an NFT into your connected wallet proving your authorship.
                                         </div>
                                         <div class="mt-3">
-                                            <form action="/app/codebase/{$organization->login}/repositories/{$repository->name}/claim" method="post">
+                                            <form action="/app/codebase/{$organization->login ?? $github_user->login}/repositories/{$repository->name}/claim" method="post">
                                                 <button type="submit" class="btn btn-primary">
                                                     <i class="icon bi bi-vector-pen"></i>
                                                     Claim authorship
