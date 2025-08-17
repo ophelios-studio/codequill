@@ -3,40 +3,28 @@
 use kornrunner\Keccak;
 use Models\Account\Entities\Wallet;
 use Pulsar\OAuth\GitHub\Entities\GitHubRepository;
+use SWeb3\Accounts;
 use Tracy\Debugger;
 use Web3\Contract;
 use Web3\Web3;
+use Web3p\EthereumTx\Transaction;
 use Zephyrus\Core\Configuration;
 
 class RegistryService
 {
-    // bytes32 hex helper: 0x + 64 hex chars
-    public function toBytes32(string $hexNo0x): string
-    {
-        $hex = strtolower($hexNo0x);
-        $hex = preg_replace('/^0x/i', '', $hex);
-        return '0x' . str_pad($hex, 64, '0', STR_PAD_LEFT);
-    }
-
-    // Build a stable repoId
-    public function repoIdFromGithubId(string $githubNumericId): string
-    {
-        $hash = Keccak::hash($githubNumericId, 256); // 64 hex chars
-        return $this->toBytes32($hash);
-    }
-
     // If null = no owner
     public function getOwner(GitHubRepository $repository): ?string
     {
         $config = Configuration::read('services')['infura'];
-        $rpc   = $config['eth_url'];
+        $rpc   = $config['polygon_url'];
         $abi   = file_get_contents(ROOT_DIR . '/web3/registry_abi.json');
-        $contractAddress  = '0xbC6C15A2A878300Ac49d51Fc4AA460a4AaF7dc90';
+        $contractAddress  = '0xa7239b6D1d714Eb6032076a073903F9b119f368C';
 
         $web3      = new Web3($rpc);
         $contract  = new Contract($web3->getProvider(), $abi);
 
         $repoId = $this->repoIdFromGithubId($repository->id);
+        Debugger::barDump("REPO ID (getOwner): " . $repoId);
         $claimed = false;
         $contract->at($contractAddress)->call('isClaimed', $repoId, function($err, $res) use (&$claimed) {
             if ($err !== null) {
@@ -59,9 +47,9 @@ class RegistryService
     public function claim(GitHubRepository $repository, Wallet $wallet): ?string
     {
         $config = Configuration::read('services')['infura'];
-        $rpc   = $config['eth_url'];
+        $rpc   = $config['polygon_url'];
         $abi   = file_get_contents(ROOT_DIR . '/web3/registry_abi.json');
-        $contractAddress  = '0xbC6C15A2A878300Ac49d51Fc4AA460a4AaF7dc90';
+        $contractAddress  = '0xa7239b6D1d714Eb6032076a073903F9b119f368C';
 
         $web3      = new Web3($rpc);
         $contract  = new Contract($web3->getProvider(), $abi);
@@ -73,31 +61,66 @@ class RegistryService
 
         $relayerAddr = '0x846a07aa7577440174Fe89B82130D836389b1b81';
         $privateKey  = Configuration::read('services')['mint']['private_key'];
-        $options = [
-            'from'       => $relayerAddr,
-            // If you prefer explicit gas limits:
-            'gas'        => '0x249F0',      // ~150,000 (more than enough here; tune as needed)
-            'gasPrice'   => '0x3b9aca00',   // 1 gwei (legacy); OK on many RPCs
-            'value'      => '0x0',
-            'privateKey' => $privateKey,
-        ];
 
-        $txHash = null;
-        $contract->at($contractAddress)->send(
-            'claimRepoFor',
-            $repoId,           // bytes32
-            $repoMeta,         // string
-            $userWallet,       // address (the actual owner!)
-            $options,
-            function ($err, $tx) use (&$txHash) {
-                if ($err !== null) {
-                    error_log('claimRepoFor error: ' . (is_object($err) ? $err->getMessage() : $err));
-                    return;
-                }
-                $txHash = $tx;
-            }
+        $account2 = Accounts::privateKeyToAccount($privateKey);
+
+        // 1) Encode calldata
+        $methodName = 'claimRepoFor';
+        $data = $contract->getData($methodName, $repoId, $repoMeta, $userWallet);
+        Debugger::barDump("REPO ID (Claim): " . $repoId);
+        Debugger::barDump("REPO Meta (Claim): " . $repoMeta);
+        Debugger::barDump("REPO Wallet (Claim): " . $userWallet
         );
+        // Nonce
+        $nonce = null;
+        $web3->getEth()->getTransactionCount($account2->address, 'pending', function ($err, $result) use (&$nonce) {
+            if ($err) throw new \RuntimeException("Nonce error: ".$err->getMessage());
+            $nonce = '0x' . dechex($result->toString());
+        });
+
+        // Gas price
+        $gasPrice = null;
+        $web3->getEth()->gasPrice(function ($err, $result) use (&$gasPrice) {
+            if ($err) throw new \RuntimeException("Gas price error: ".$err->getMessage());
+            $gasPrice = '0x' . dechex($result->toString());
+        });
+
+        // 5) Build & sign legacy tx (simple and widely supported)
+        $data = preg_replace('/^0x/i', '', $data);
+        $transaction = new Transaction([
+            'nonce'    => $nonce,
+            'to'       => $contractAddress,
+            'gas'      => '0x493e0',
+            'gasPrice' => $gasPrice,
+            'value'    => '0x0',
+            'data'     => '0x' . $data,
+            'chainId'  => 137,
+        ]);
+
+        $signed = '0x' . $transaction->sign($account2->privateKey);
+
+        // 6) Send raw tx
+        $txHash = null;
+        $web3->getEth()->sendRawTransaction($signed, function ($err, $result) use (&$txHash) {
+            if ($err) throw new \RuntimeException("Broadcast error: ".$err->getMessage());
+            $txHash = $result;
+        });
+        Debugger::barDump($txHash);
         return $txHash;
     }
 
+    // bytes32 hex helper: 0x + 64 hex chars
+    public function toBytes32(string $hexNo0x): string
+    {
+        $hex = strtolower($hexNo0x);
+        $hex = preg_replace('/^0x/i', '', $hex);
+        return '0x' . str_pad($hex, 64, '0', STR_PAD_LEFT);
+    }
+
+    // Build a stable repoId
+    public function repoIdFromGithubId(string $githubNumericId): string
+    {
+        $hash = Keccak::hash($githubNumericId, 256); // 64 hex chars
+        return $this->toBytes32($hash);
+    }
 }
