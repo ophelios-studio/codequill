@@ -82,7 +82,7 @@ class RegistryService
 
         // 1) Encode calldata
         $methodName = 'claimRepoFor';
-        $data = $contract->getData($methodName, $repoId, $repoMeta, $userWallet);
+        $data = $contract->at(self::CONTRACT_ADDRESS)->getData($methodName, $repoId, $repoMeta, $userWallet);
 
         // Nonce
         $nonce = null;

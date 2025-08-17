@@ -5,7 +5,7 @@
 {varType ?Models\Account\Entities\Wallet $wallet}
 {varType bool $confetti}
 {varType ?string $owner_address}
-{var array $snapshots = []}
+{varType array $snapshots}
 
 {block content}
     <div class="page-header">
@@ -71,39 +71,27 @@
 
                         <h2 class="mt-5">Snapshots</h2>
                         <p>Since you authored this repository, you can claim code snapshot to authenticate that you owned your codebase at a specific moment in time. If you enabled signing delegation, you will be able to use the GitHub Action script to automate snapshot in your CI/CD workflow.</p>
-                        <div n:if="$snapshots" class="card">
+                        <div n:if="!empty($snapshots)" class="card">
                             <div class="card-header">
                                 <h3 class="card-title">Code Snapshots</h3>
                             </div>
                             <div class="list-group list-group-flush list-group-hoverable">
-                                <div class="list-group-item">
-                                    <div class="row align-items-center">
-                                        <div class="col-auto"><span class="badge bg-red"></span></div>
-                                        <div class="col-auto">
-                                            <a href="#">
-                                                <span class="avatar avatar-1" style="background-image: url(./static/avatars/000m.jpg)"> </span>
-                                            </a>
-                                        </div>
-                                        <div class="col text-truncate">
-                                            <a href="#" class="text-reset d-block">Paweł Kuna</a>
-                                            <div class="d-block text-secondary text-truncate mt-n1">Change deprecated html tags to text decoration classes (#29604)</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="list-group-item">
-                                    <div class="row align-items-center">
-                                        <div class="col-auto"><span class="badge bg-yellow"></span></div>
-                                        <div class="col-auto">
-                                            <a href="#">
-                                                <span class="avatar avatar-1" style="background-image: url(./static/avatars/052f.jpg)"> </span>
-                                            </a>
-                                        </div>
-                                        <div class="col text-truncate">
-                                            <a href="#" class="text-reset d-block">Jeffie Lewzey</a>
-                                            <div class="d-block text-secondary text-truncate mt-n1">justify-content:between ⇒ justify-content:space-between (#29734)</div>
+                                {foreach $snapshots as $snapshot}
+                                    <div class="list-group-item">
+                                        <div class="row align-items-center">
+{*                                            <div class="col-auto"><span class="badge bg-red"></span></div>*}
+{*                                            <div class="col-auto">*}
+{*                                                <a href="#">*}
+{*                                                    <span class="avatar avatar-1" style="background-image: url(./static/avatars/000m.jpg)"> </span>*}
+{*                                                </a>*}
+{*                                            </div>*}
+                                            <div class="col text-truncate">
+                                                <div class="text-reset d-block">{format('datetime', date(FORMAT_DATE_TIME, $snapshot->timestamp))}</div>
+                                                <div class="d-block text-secondary text-truncate mt-n1">{$snapshot->totalHash}</div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                {/foreach}
                             </div>
                         </div>
                         <div n:else class="text-center mt-5">
