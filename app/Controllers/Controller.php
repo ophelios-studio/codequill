@@ -93,7 +93,7 @@ abstract class Controller extends BaseController
         $csp->setChildSources(["'self'"]);
         $csp->setWorkerSources(["blob:"]);
         $csp->setConnectSources(["'self'"]);
-        $csp->setImageSources(["'self'", 'blob:', 'data:', 'https://avatars.githubusercontent.com']);
+        $csp->setImageSources(["'self'", 'blob:', 'data:', 'https://avatars.githubusercontent.com', 'https://img.shields.io']);
         $csp->setBaseUri([$this->request->getUrl()->getBaseUrl()]);
         $secureHeader->setContentSecurityPolicy($csp);
     }

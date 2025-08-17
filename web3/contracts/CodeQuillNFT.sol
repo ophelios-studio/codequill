@@ -24,3 +24,6 @@ contract CodeQuillNFT is ERC721URIStorage, Ownable {
         return tokenId;
     }
 }
+
+// CONTRACT ADDRESS
+// 0x7bc66725f383e8B46D8B8762aDF913A150CfB612
