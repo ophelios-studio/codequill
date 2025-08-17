@@ -1,12 +1,11 @@
 <?php namespace Models\Account\Services;
 
 use GuzzleHttp\Client;
-use Tracy\Debugger;
 use Zephyrus\Core\Configuration;
 
 class TuskyService
 {
-    private const TUSKY_API = 'https://walrus.tusky.io/';
+    private const TUSKY_API = 'https://api.tusky.io';
     private string $apiKey;
     private Client $client;
 
@@ -29,7 +28,7 @@ class TuskyService
     public function getFile(string $fileId): ?array
     {
         try {
-            $response = $this->client->request('GET', "/$fileId", [
+            $response = $this->client->request('GET', "/files/{$fileId}", [
                 'headers' => [
                     'Api-Key' => $this->apiKey,
                     'Accept' => 'application/json'
