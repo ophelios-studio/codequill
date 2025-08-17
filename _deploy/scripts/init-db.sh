@@ -2,7 +2,7 @@
 set -e
 
 # Only run database initialization for production environments
-if [ "$APP_ENV" = "prod" ]; then
+if [ "$APP_ENV" = "dev" ]; then
   echo "🔍 Checking if database has already been initialized..."
 
   # Check if database has already been initialized by looking for dedicated marker table
