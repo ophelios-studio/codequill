@@ -12,6 +12,8 @@ use Zephyrus\Core\Session;
 use Zephyrus\Network\Response;
 use Zephyrus\Network\Router\Get;
 use Zephyrus\Network\Router\Post;
+use Zephyrus\Security\Cryptography;
+use Zephyrus\Utilities\FileSystem\Directory;
 
 class RepositoryController extends CodeBaseController
 {
@@ -107,6 +109,8 @@ class RepositoryController extends CodeBaseController
 
         $token = Passport::getUser()->authentication->oauth_access_token;
         $service = new GitHubService($token);
+        $githubUser = $service->getUser();
+        $owner = ($organizationLogin != "me") ? $organizationLogin : $githubUser->login;
 
         if ($organizationLogin != "me") {
             $repository = $service->getRepository($organizationLogin . "/" . $repositoryName);
@@ -120,11 +124,15 @@ class RepositoryController extends CodeBaseController
         }
 
         $snapshotService = new SnapshotService();
-        $file = ROOT_DIR . "/config.yml";
-        $hash = hash_file('sha256', $file);
+
+
+        $destination = ROOT_DIR . "/temp/github/" . Cryptography::randomString(32);
+        $path = $service->downloadRepositoryZip($owner, $repositoryName, "main", $destination);
+        $hash = hash_file('sha256', $path);
+        //new Directory($destination)->remove();
         $transactionHash = $snapshotService->snapshot($repository->id, $wallet->address, $hash);
 
-        Flash::success("The snapshot was successfully created for this repository 🎉. You can consult the <a href='https://polygonscan.com/tx/$transactionHash' target='_blank'>transaction</a>");
+        Flash::success("The snapshot was successfully created for this repository 🎉. You can consult the <a href='https://polygonscan.com/tx/$transactionHash' target='_blank'>transaction</a>. Please allow a couple of minutes for the snapshot to be indexed.");
         return $this->redirect("/app/codebase/$organizationLogin/repositories/$repositoryName");
     }
 
