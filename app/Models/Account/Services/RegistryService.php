@@ -56,7 +56,7 @@ class RegistryService
         return $owner;
     }
 
-    public function claim(GitHubRepository $repository): ?string
+    public function claim(GitHubRepository $repository, Wallet $wallet): ?string
     {
         $config = Configuration::read('services')['infura'];
         $rpc   = $config['eth_url'];
@@ -66,28 +66,32 @@ class RegistryService
         $web3      = new Web3($rpc);
         $contract  = new Contract($web3->getProvider(), $abi);
 
-        $repoId = $this->repoIdFromGithubId($repository->id);
-        $repoMeta = $repository->html_url;
+        $githubId    = $repository->id;
+        $repoId      = $this->repoIdFromGithubId($githubId);
+        $repoMeta    = $repository->html_url;
+        $userWallet  = $wallet->address;
 
-        $mintConfig = Configuration::read('services')['mint'];
-        $privateKey = $mintConfig['private_key'];
+        $relayerAddr = '0x846a07aa7577440174Fe89B82130D836389b1b81';
+        $privateKey  = Configuration::read('services')['mint']['private_key'];
+        $options = [
+            'from'       => $relayerAddr,
+            // If you prefer explicit gas limits:
+            'gas'        => '0x249F0',      // ~150,000 (more than enough here; tune as needed)
+            'gasPrice'   => '0x3b9aca00',   // 1 gwei (legacy); OK on many RPCs
+            'value'      => '0x0',
+            'privateKey' => $privateKey,
+        ];
 
         $txHash = null;
         $contract->at($contractAddress)->send(
-            'claimRepo',
-            $repoId,                // arg1 (bytes32)
-            $repoMeta,              // arg2 (string)
-            [
-                'from'      => '0x846a07aa7577440174Fe89B82130D836389b1b81',
-                'gas'       => '0x2dc6c0',     // ~3,000,000 (overshoot for safety; tune down)
-                'gasPrice'  => '0x3b9aca00',   // 1 gwei (example) – or use basefee/1559 fields if your node supports
-                'value'     => '0x0',
-                'privateKey'=> $privateKey,
-            ],
+            'claimRepoFor',
+            $repoId,           // bytes32
+            $repoMeta,         // string
+            $userWallet,       // address (the actual owner!)
+            $options,
             function ($err, $tx) use (&$txHash) {
                 if ($err !== null) {
-                    // handle error (string|Exception)
-                    error_log('send error: ' . (is_object($err) ? $err->getMessage() : $err));
+                    error_log('claimRepoFor error: ' . (is_object($err) ? $err->getMessage() : $err));
                     return;
                 }
                 $txHash = $tx;
