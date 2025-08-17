@@ -40,7 +40,7 @@ class NftService
     {
         $walrusService = new TuskyService();
         // TODO: generate image with GD
-        return $walrusService->upload(ROOT_DIR . '/web3/nft.png', self::VAULT_ID);
+        return $walrusService->upload(ROOT_DIR . '/web3/nft_template.png', self::VAULT_ID);
     }
 
     private function generateMetadata(string $imageUrl, GitHubRepository $repository, string $metadataPath): string
