@@ -16,6 +16,9 @@ mailer:
   transport: !env MAILER_TRANSPORT
   default_from_address: "info@ophelios.com"
   default_from_name: "CodeQuill"
+  aws:
+    api_key: !env AWS_KEY
+    api_secret: !env AWS_SECRET
   smtp:
     enabled: true
     host: "localhost"
