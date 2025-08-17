@@ -9,7 +9,6 @@
 {varType array $snapshots}
 
 {block content}
-    {do Tracy\Debugger::barDump($organization)}
     <div class="page-header">
         <div class="container-xl">
             <div class="row align-items-center">
@@ -70,6 +69,16 @@
                         <img src="https://img.shields.io/badge/Code_Quill-Authored_By_{$wallet->getName()}-f63f42?style=for-the-badge" alt="" />
                         <pre class="mt-3"><code>&lt;img src="https://img.shields.io/badge/Code_Quill-Authored_By_{$wallet->getName()}-f63f42?style=for-the-badge" alt="" /&gt;</code></pre>
                         <pre class="mt-3"><code>![Static Badge](https://img.shields.io/badge/Code_Quill-Authored_By_{$wallet->getName()}-f63f42?style=for-the-badge)</code></pre>
+
+                        <div class="card">
+                            <div class="ribbon bg-red">SOON</div>
+                            <div class="card-body">
+                                <h3 class="card-title">GitHub Action</h3>
+                                <p class="text-secondary">
+                                    No need to manually create a snapshot. We are working 🚀 on a GitHub Action that will automatically create a snapshot for you.
+                                </p>
+                            </div>
+                        </div>
 
                         <h2 class="mt-5">Verify code</h2>
                         <p>If you want to verify a repository snapshot you can download a zip file of your project and hash the archive. Paste the resulting hash below and see if there is a hash matching.</p>
