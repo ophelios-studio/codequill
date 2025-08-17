@@ -1,24 +1,25 @@
 <?php namespace Models\Account\Services;
 
+use Models\Account\Entities\Wallet;
+use Pulsar\OAuth\GitHub\Entities\GitHubRepository;
 use SWeb3\Accounts;
 use Web3\Contract;
 use Web3\Web3;
 use Web3p\EthereumTx\Transaction;
 use Zephyrus\Core\Configuration;
+use Zephyrus\Security\Cryptography;
 
 class NftService
 {
-    private string $receivingAddress;
+    private const string VAULT_ID = '837ae68d-04e4-4952-a670-3a72f2759fb8';
+    private Wallet $wallet;
 
-    /**
-     * @param string $receivingAddress
-     */
-    public function __construct(string $receivingAddress)
+    public function __construct(Wallet $wallet)
     {
-        $this->receivingAddress = $receivingAddress;
+        $this->wallet = $wallet;
     }
 
-    public function generate(string $repoName, string $ownerName): string
+    public function generate(GitHubRepository $repository): string
     {
         $imageId = $this->generateImage();
         sleep(5);
@@ -26,27 +27,32 @@ class NftService
         $fileInfo = $service->getFile($imageId);
         $blobId = $fileInfo['blobId'] ?? null;
         $tokenURI = "https://walrus.tusky.io/$blobId";
-        $metadataId = $this->generateMetadata($tokenURI, $repoName, $ownerName);
+
+        $randomName = Cryptography::randomString(30) . '.json';
+        $metadataPath = ROOT_DIR . '/web3/' . $randomName;
+        $metadataId = $this->generateMetadata($tokenURI, $repository, $metadataPath);
         sleep(5);
+        unlink($metadataPath);
         return $this->mint($metadataId);
     }
 
     private function generateImage(): string
     {
         $walrusService = new TuskyService();
-        return $walrusService->upload(ROOT_DIR . '/web3/nft.png', '837ae68d-04e4-4952-a670-3a72f2759fb8');
+        // TODO: generate image with GD
+        return $walrusService->upload(ROOT_DIR . '/web3/nft.png', self::VAULT_ID);
     }
 
-    private function generateMetadata(string $imageUrl, string $repoName, string $authorName): string
+    private function generateMetadata(string $imageUrl, GitHubRepository $repository, string $metadataPath): string
     {
         $walrusService = new TuskyService();
         $metaData = json_encode([
-            'name' => "Code Quill Authorship: $repoName",
-            'description' => "This NFT certifies that $authorName authored the repository $repoName.",
+            'name' => "Code Quill Authorship: $repository->full_name",
+            'description' => "This NFT certifies that " . $this->wallet->getName() . " authored the repository $repository->full_name.",
             'image' => $imageUrl,
         ], JSON_PRETTY_PRINT);
-        file_put_contents(ROOT_DIR . '/web3/metadata.json', $metaData);
-        return $walrusService->upload(ROOT_DIR . '/web3/metadata.json', '837ae68d-04e4-4952-a670-3a72f2759fb8');
+        file_put_contents($metadataPath, $metaData);
+        return $walrusService->upload($metadataPath, self::VAULT_ID);
     }
 
     public function mint(string $metadataId): string
@@ -56,7 +62,7 @@ class NftService
         $mintCfg    = $cfg['mint'];
         $privateKey = $mintCfg['private_key'];
         $contractAddr = $mintCfg['contract_address'];
-        $toAddress  = $this->receivingAddress;
+        $toAddress  = $this->wallet->address;
         $abi        = json_decode(file_get_contents(ROOT_DIR . '/web3/contract_abi.json'), true);
 
         // tokenURI from storage

@@ -28,11 +28,29 @@ class RepositoryController extends CodeBaseController
             Flash::warning("No repository found for this organization.");
             return $this->redirect($this->getRouteRoot());
         }
+
+        $claimedRepoIds = [];
+        $wallet = new WalletService()->getConnectedWallet(Passport::getUserId());
+        if ($wallet) {
+            $registryService = new RegistryService();
+            $claimedRepos = $registryService->getClaimsByOwner($wallet->address);
+            Debugger::barDump($claimedRepos);
+
+            foreach ($repositories as $repository) {
+                $id = $registryService->repoIdFromGithubId($repository->id);
+                if (in_array($id, $claimedRepos)) {
+                    $claimedRepoIds[] = $repository->id;
+                }
+            }
+        }
+        Debugger::barDump($claimedRepoIds);
+
         Debugger::barDump($repositories);
         return $this->render("application/repository/repositories", [
             'repositories' => $repositories,
             'organization' => ($organizationLogin != "me") ? $service->getOrganization($organizationLogin) : null,
-            'github_user' => ($organizationLogin !== "me") ? $service->getUser() : null
+            'github_user' => ($organizationLogin !== "me") ? $service->getUser() : null,
+            'claimed_repo_ids' => $claimedRepoIds,
         ]);
     }
 
@@ -78,7 +96,7 @@ class RepositoryController extends CodeBaseController
 
         $token = Passport::getUser()->authentication->oauth_access_token;
         $service = new GitHubService($token);
-        $githubUser = $service->getUser();
+
         if ($organizationLogin != "me") {
             $repository = $service->getRepository($organizationLogin . "/" . $repositoryName);
         } else {
@@ -98,9 +116,9 @@ class RepositoryController extends CodeBaseController
         }
 
         $hash = $registryService->claim($repository, $wallet);
-        Debugger::barDump("CLAIM HASH: " . $hash);;
-        $hash = new NftService($wallet->address)->generate($repository->full_name, $githubUser->login);
-        Debugger::barDump("NFT HASH: " . $hash);;
+        Debugger::barDump("CLAIM HASH: " . $hash);
+        $hash = new NftService($wallet)->generate($repository);
+        Debugger::barDump("NFT HASH: " . $hash);
         Flash::success("Your NFT was successfully minted 🎉! You can consult the <a href='https://polygonscan.com/tx/$hash' target='_blank'>transaction</a> ($hash) and find it on <a href='https://opensea.io/assets/ethereum/$wallet->address/'>OpenSea</a>.");
         Session::set("confetti", true);
         return $this->redirect("/app/codebase/$organizationLogin/repositories/$repositoryName");

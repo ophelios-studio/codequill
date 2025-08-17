@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract CodeQuillRegistry is Ownable {
     /// @notice repoId (bytes32) -> owner (wallet)
     mapping(bytes32 => address) public repoOwner;
+    mapping(address => bytes32[]) private reposByOwner;
 
     event RepoClaimed(bytes32 indexed repoId, address indexed owner, string meta);
     event RepoTransferred(bytes32 indexed repoId, address indexed oldOwner, address indexed newOwner);
@@ -31,7 +32,12 @@ contract CodeQuillRegistry is Ownable {
         require(owner_ != address(0), "zero owner");
         require(repoOwner[repoId] == address(0), "already claimed");
         repoOwner[repoId] = owner_;
+        reposByOwner[owner_].push(repoId);
         emit RepoClaimed(repoId, owner_, meta);
+    }
+
+    function getReposByOwner(address owner_) external view returns (bytes32[] memory) {
+        return reposByOwner[owner_];
     }
 
     /// @notice Allow controlled transfers (optional). Only contract owner (relayer) can transfer.
