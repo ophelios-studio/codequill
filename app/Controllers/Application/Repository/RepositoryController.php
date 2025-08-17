@@ -49,10 +49,11 @@ class RepositoryController extends CodeBaseController
         Debugger::barDump($claimedRepoIds);
 
         Debugger::barDump($repositories);
+        $user = $service->getUser();
         return $this->render("application/repository/repositories", [
             'repositories' => $repositories,
-            'organization' => ($organizationLogin != "me") ? $service->getOrganization($organizationLogin) : null,
-            'github_user' => ($organizationLogin !== "me") ? $service->getUser() : null,
+            'organization' => ($organizationLogin != "me") ? $service->getOrganization($organizationLogin) : $user,
+            'github_user' => ($organizationLogin !== "me") ? $user : null,
             'claimed_repo_ids' => $claimedRepoIds,
         ]);
     }
@@ -62,10 +63,15 @@ class RepositoryController extends CodeBaseController
     {
         $token = Passport::getUser()->authentication->oauth_access_token;
         $service = new GitHubService($token);
-        if ($organizationLogin != "me") {
-            $repository = $service->getRepository($organizationLogin . "/" . $repositoryName);
-        } else {
-            $repository = $service->getRepository($repositoryName);
+        try {
+            if ($organizationLogin != "me") {
+                $repository = $service->getRepository($organizationLogin . "/" . $repositoryName);
+            } else {
+                $repository = $service->getRepository($repositoryName);
+            }
+        } catch (\Exception $e) {
+            Flash::warning("You are not the owner of the selected repository.");
+            return $this->redirect("/app/codebase/$organizationLogin/repositories");
         }
 
         $registryService = new RegistryService();
@@ -88,10 +94,11 @@ class RepositoryController extends CodeBaseController
             $snapshots = $snapshotService->getSnapshots($repository->id);
             Debugger::barDump($snapshots);
         }
-
+        $user = $service->getUser();
         return $this->render("application/repository/read", [
             'repository' => $repository,
-            'organization' => (object) $repository->getRawData()->organization,
+            'organization' => ($organizationLogin != "me") ? (object) $repository->getRawData()->organization : null,
+            'github_user' => ($organizationLogin !== "me") ? $user : null,
             'confetti' => $confetti,
             'owner_address' => $ownerAddress,
             'snapshots' => $snapshots
@@ -180,7 +187,7 @@ class RepositoryController extends CodeBaseController
         $wallet = new WalletService()->getConnectedWallet(Passport::getUserId());
         if (is_null($wallet)) {
             Flash::warning("No wallet connected.");
-            return $this->redirect($this->getRouteRoot());
+            return $this->redirect("/app/codebase/$organizationLogin/repositories/$repositoryName");
         }
 
         $token = Passport::getUser()->authentication->oauth_access_token;
@@ -195,7 +202,7 @@ class RepositoryController extends CodeBaseController
         $hash = $this->request->getParameter("hash");
         if (empty($hash)) {
             Flash::error("The <b>hash</b> must not be empty.");
-            return $this->redirect($this->getRouteRoot());
+            return $this->redirect("/app/codebase/$organizationLogin/repositories/$repositoryName");
         }
 
         $service = new SnapshotService();
