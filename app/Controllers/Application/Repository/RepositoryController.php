@@ -6,6 +6,7 @@ use Pulsar\Account\Passport;
 use Pulsar\OAuth\GitHub\GitHubService;
 use Tracy\Debugger;
 use Zephyrus\Application\Flash;
+use Zephyrus\Core\Session;
 use Zephyrus\Network\Response;
 use Zephyrus\Network\Router\Get;
 use Zephyrus\Network\Router\Post;
@@ -50,19 +51,20 @@ class RepositoryController extends CodeBaseController
             return $this->redirect($this->getRouteRoot());
         }
         Debugger::barDump($repository);
+        $confetti = Session::get("confetti", false);
+        if ($confetti) {
+            Session::remove("confetti");
+        }
         return $this->render("application/repository/read", [
             'repository' => $repository,
-            'organization' => (object) $repository->getRawData()->organization
+            'organization' => (object) $repository->getRawData()->organization,
+            'confetti' => $confetti
         ]);
     }
 
     #[Post("/{org}/repositories/{repository}/claim")]
     public function claim(string $organizationLogin, string $repositoryName): Response
     {
-
-
-
-
         $wallet = new WalletService()->getConnectedWallet(Passport::getUserId());
         if (is_null($wallet)) {
             Flash::warning("No wallet connected.");
@@ -83,8 +85,9 @@ class RepositoryController extends CodeBaseController
             return $this->redirect($this->getRouteRoot());
         }
 
-        new NftService("0x28bDeBA50ae38D29D99FeEc528c6169CED4B8560")
-            ->generate($repository->full_name, $githubUser->login);
-        return $this->html("Claimed repository");
+        $hash = new NftService($wallet->address)->generate($repository->full_name, $githubUser->login);
+        Flash::success("Your NFT was successfully minted 🎉! You can consult the <a href='https://polygonscan.com/tx/$hash' target='_blank'>transaction</a> ($hash) and find it on <a href='https://opensea.io/assets/ethereum/$wallet->address/'>OpenSea</a>.");
+        Session::set("confetti", true);
+        return $this->redirect("/app/codebase/$organizationLogin/repositories/$repositoryName");
     }
 }

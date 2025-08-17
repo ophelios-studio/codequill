@@ -3,6 +3,7 @@
 {varType Pulsar\OAuth\GitHub\Entities\GitHubRepository $repository}
 {varType ?\stdClass $organization}
 {varType ?Models\Account\Entities\Wallet $wallet}
+{varType bool $confetti}
 
 {block content}
     <div class="page-header">
@@ -33,7 +34,7 @@
                         You cannot claim authorship until you connect an Ethereum wallet.
                     </div>
                 {/if}
-                <div class="card card-md sticky-top">
+                <div class="card card-md">
                     <div class="card-stamp card-stamp-lg">
                         <div class="card-stamp-icon bg-primary">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
@@ -79,4 +80,11 @@
             </div>
         </div>
     </div>
+{/block}
+
+{block js}
+    <script n:if="$confetti" nonce="{nonce()}">
+        const jsConfetti = new JSConfetti();
+        jsConfetti.addConfetti();
+    </script>
 {/block}
