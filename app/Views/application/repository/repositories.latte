@@ -4,10 +4,7 @@
 {varType array $repositories}
 {varType ?\stdClass $organization}
 {varType ?Pulsar\OAuth\GitHub\Entities\GitHubUser $github_user}
-
-{do Tracy\Debugger::barDump($github_user)}
-{do Tracy\Debugger::barDump($organization)}
-{do Tracy\Debugger::barDump($repositories)}
+{varType array $claimed_repo_ids}
 
 {block content}
     <div class="page-header">
@@ -65,7 +62,10 @@
                                 {varType Pulsar\OAuth\GitHub\Entities\GitHubRepository $repository}
                                 <div class="list-group-item">
                                     <div class="row align-items-center">
-                                        <div class="col-auto"><span class="badge bg-orange"></span></div>
+                                        <div class="col-auto">
+                                            <span n:if="in_array($repository->id, $claimed_repo_ids)" class="badge bg-green"></span>
+                                            <span n:else class="badge bg-orange"></span>
+                                        </div>
 {*                                        <div class="col-auto">*}
 {*                                            <a href="#">*}
 {*                                                <span class="avatar avatar-1" style="background-image: url(./static/avatars/000m.jpg)"> </span>*}

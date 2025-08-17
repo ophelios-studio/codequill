@@ -11,20 +11,21 @@ use Zephyrus\Core\Configuration;
 
 class RegistryService
 {
+    public const string CONTRACT_ADDRESS = '0x00DD90dBcC65c282284BD6d3D89f0DD63161C0c3';
+
     // If null = no owner
     public function getOwner(GitHubRepository $repository): ?string
     {
         $config = Configuration::read('services')['infura'];
         $rpc   = $config['polygon_url'];
         $abi   = file_get_contents(ROOT_DIR . '/web3/registry_abi.json');
-        $contractAddress  = '0xa7239b6D1d714Eb6032076a073903F9b119f368C';
 
         $web3      = new Web3($rpc);
         $contract  = new Contract($web3->getProvider(), $abi);
 
         $repoId = $this->repoIdFromGithubId($repository->id);
         $claimed = false;
-        $contract->at($contractAddress)->call('isClaimed', $repoId, function($err, $res) use (&$claimed) {
+        $contract->at(self::CONTRACT_ADDRESS)->call('isClaimed', $repoId, function($err, $res) use (&$claimed) {
             if ($err !== null) {
                 throw $err; // or handle error
             }
@@ -33,7 +34,7 @@ class RegistryService
 
         $owner = null;
         if ($claimed) {
-            $contract->at($contractAddress)->call('repoOwner', $repoId, function ($err, $res) use (&$owner) {
+            $contract->at(self::CONTRACT_ADDRESS)->call('repoOwner', $repoId, function ($err, $res) use (&$owner) {
                 if ($err !== null) { throw $err; }
                 $owner = $res[0];
             });
@@ -42,12 +43,29 @@ class RegistryService
         return $owner;
     }
 
+    public function getClaimsByOwner(string $address): array
+    {
+        $rpc   = Configuration::read('services')['infura']['polygon_url'];
+        $abi   = file_get_contents(ROOT_DIR . '/web3/registry_abi.json');
+        $web3     = new Web3($rpc);
+        $contract = new Contract($web3->getProvider(), $abi);
+
+        $repoIds = [];
+        $contract->at(self::CONTRACT_ADDRESS)->call('getReposByOwner', strtolower($address), function ($err, $res) use (&$repoIds) {
+            if ($err !== null) { throw $err; }
+            // $res[0] is bytes32[]; cast each to string
+            foreach ((array)$res[0] as $hex) {
+                $repoIds[] = strtolower((string)$hex); // e.g., "0xabc..."
+            }
+        });
+        return $repoIds; // array of bytes32 repoIds
+    }
+
     public function claim(GitHubRepository $repository, Wallet $wallet): ?string
     {
         $config = Configuration::read('services')['infura'];
         $rpc   = $config['polygon_url'];
         $abi   = file_get_contents(ROOT_DIR . '/web3/registry_abi.json');
-        $contractAddress  = '0xa7239b6D1d714Eb6032076a073903F9b119f368C';
 
         $web3      = new Web3($rpc);
         $contract  = new Contract($web3->getProvider(), $abi);
@@ -84,7 +102,7 @@ class RegistryService
         $data = preg_replace('/^0x/i', '', $data);
         $transaction = new Transaction([
             'nonce'    => $nonce,
-            'to'       => $contractAddress,
+            'to'       => self::CONTRACT_ADDRESS,
             'gas'      => '0x493e0',
             'gasPrice' => $gasPrice,
             'value'    => '0x0',
